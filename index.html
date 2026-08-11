@@ -1,1285 +1,1285 @@
-     1|<!DOCTYPE html>
-     2|<html lang="zh-CN">
-     3|<head>
-     4|<meta charset="UTF-8">
-     5|<meta name="viewport" content="width=device-width, initial-scale=1.0">
-     6|<title>📝 家庭菜单手账</title>
-     7|<link rel="preconnect" href="https://fonts.googleapis.com">
-     8|<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-     9|<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+KuaiLe&family=Caveat:wght@400;700&display=swap" rel="stylesheet">
-    10|<style>
-    11|/* ===== Reset & Base ===== */
-    12|*{margin:0;padding:0;box-sizing:border-box}
-    13|:root{
-    14|  --paper:#fdf6e3;--ink:#4a3b2a;--ink-light:#7a6a55;
-    15|  --line:rgba(200,180,140,.22);--margin:rgba(220,100,100,.12);
-    16|  --pink:#ffd6d6;--mint:#c8f0d8;--yellow:#fff9c4;--blue:#c8e0f4;--lav:#e8d5f0;--peach:#ffe0c8;
-    17|  --tape-pink:rgba(255,183,178,.45);--tape-mint:rgba(174,224,199,.45);
-    18|  --tape-yellow:rgba(255,224,130,.45);--tape-blue:rgba(174,210,240,.45);
-    19|  --accent:#e67e22;--danger:#e74c3c;--success:#27ae60;
-    20|}
-    21|html{scroll-behavior:smooth}
-    22|body{
-    23|  font-family:'ZCOOL KuaiLe','KaiTi','STKaiti','楷体',sans-serif;
-    24|  background-color:var(--paper);
-    25|  background-image:
-    26|    repeating-linear-gradient(transparent,transparent 31px,var(--line) 32px),
-    27|    linear-gradient(to right,transparent 39px,var(--margin) 40px,transparent 41px);
-    28|  color:var(--ink);min-height:100vh;padding:15px 15px 60px;
-    29|  line-height:1.6;
-    30|}
-    31|h1,h2,h3{font-family:'Ma Shan Zheng','KaiTi','STKaiti','楷体',serif;font-weight:normal}
-    32|.hidden{display:none!important}
-    33|button{font-family:inherit;cursor:pointer;border:none;outline:none}
-    34|input,select,textarea{font-family:inherit;font-size:1em}
-    35|
-    36|/* ===== Header ===== */
-    37|header{text-align:center;padding:35px 20px 20px;position:relative}
-    38|header::before{
-    39|  content:'';position:absolute;top:18px;left:50%;
-    40|  transform:translateX(-50%) rotate(-1.5deg);
-    41|  width:280px;height:32px;
-    42|  background:var(--tape-pink);
-    43|  border-left:3px dotted rgba(255,150,140,.3);
-    44|  border-right:3px dotted rgba(255,150,140,.3);
-    45|}
-    46|header h1{font-size:2.6em;color:#5d4037;position:relative;z-index:1}
-    47|header .subtitle{
-    48|  font-family:'Caveat','Comic Sans MS',cursive;font-size:1.4em;
-    49|  color:var(--ink-light);margin-top:2px;position:relative;z-index:1;
-    50|}
-    51|header .date-stamp{
-    52|  position:absolute;top:20px;right:20px;
-    53|  font-family:'Caveat',cursive;font-size:1.1em;color:var(--danger);
-    54|  border:2px solid var(--danger);border-radius:50%;
-    55|  width:70px;height:70px;display:flex;align-items:center;justify-content:center;
-    56|  transform:rotate(8deg);line-height:1.2;text-align:center;
-    57|  opacity:.7;
-    58|}
-    59|
-    60|/* ===== Tabs ===== */
-    61|.tabs{display:flex;justify-content:center;gap:12px;margin:15px 0 25px;flex-wrap:wrap}
-    62|.tab{
-    63|  font-size:1.05em;padding:10px 24px;border-radius:3px;
-    64|  position:relative;transition:all .3s ease;
-    65|  box-shadow:1px 2px 4px rgba(0,0,0,.1);color:var(--ink);
-    66|  background:white;
-    67|}
-    68|.tab:nth-child(1){background:var(--pink);transform:rotate(-2deg)}
-    69|.tab:nth-child(2){background:var(--mint);transform:rotate(1.5deg)}
-    70|.tab:nth-child(3){background:var(--yellow);transform:rotate(-1deg)}
-    71|.tab:nth-child(4){background:var(--blue);transform:rotate(2deg)}
-    72|.tab:hover{transform:rotate(0) translateY(-3px);box-shadow:2px 5px 10px rgba(0,0,0,.15)}
-    73|.tab.active{
-    74|  transform:rotate(0) scale(1.12);
-    75|  box-shadow:0 4px 12px rgba(0,0,0,.2);z-index:10;
-    76|  font-weight:bold;
-    77|}
-    78|.tab .badge{
-    79|  display:inline-block;background:var(--danger);color:white;
-    80|  border-radius:50%;width:20px;height:20px;line-height:20px;
-    81|  font-size:.75em;margin-left:4px;font-family:'Caveat',cursive;
-    82|}
-    83|
-    84|/* ===== Pages ===== */
-    85|.page{display:none;max-width:1100px;margin:0 auto;animation:fadeIn .4s}
-    86|.page.active{display:block}
-    87|@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-    88|
-    89|/* ===== Toolbar ===== */
-    90|.toolbar{
-    91|  display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:center;
-    92|  background:white;padding:15px 20px;border-radius:3px;
-    93|  box-shadow:1px 3px 8px rgba(0,0,0,.08);position:relative;
-    94|}
-    95|.toolbar::before{
-    96|  content:'';position:absolute;top:-7px;left:30px;
-    97|  width:70px;height:18px;background:var(--tape-mint);
-    98|  transform:rotate(-3deg);
-    99|  border-left:2px dotted rgba(150,200,170,.3);
-   100|  border-right:2px dotted rgba(150,200,170,.3);
-   101|}
-   102|.search-box{
-   103|  flex:1;min-width:150px;padding:8px 14px;border:2px dashed var(--ink-light);
-   104|  border-radius:20px;background:var(--yellow);color:var(--ink);
-   105|}
-   106|.search-box:focus{border-color:var(--accent);outline:none;background:white}
-   107|.filter-btns{display:flex;gap:6px;flex-wrap:wrap}
-   108|.filter-btn{
-   109|  padding:6px 14px;border-radius:15px;font-size:.9em;
-   110|  background:var(--peach);color:var(--ink);transition:all .2s;
-   111|}
-   112|.filter-btn.active{background:var(--accent);color:white;font-weight:bold}
-   113|.filter-btn:hover{transform:translateY(-2px)}
-   114|
-   115|/* ===== Buttons ===== */
-   116|.btn{
-   117|  padding:8px 18px;border-radius:3px;font-size:1em;
-   118|  transition:all .2s;box-shadow:1px 2px 4px rgba(0,0,0,.1);
-   119|  display:inline-flex;align-items:center;gap:6px;
-   120|}
-   121|.btn-primary{background:var(--accent);color:white}
-   122|.btn-primary:hover{background:#d35400;transform:translateY(-2px)}
-   123|.btn-success{background:var(--success);color:white}
-   124|.btn-success:hover{background:#1e8449;transform:translateY(-2px)}
-   125|.btn-danger{background:var(--danger);color:white}
-   126|.btn-danger:hover{background:#c0392b;transform:translateY(-2px)}
-   127|.btn-secondary{background:#ecf0f1;color:var(--ink)}
-   128|.btn-secondary:hover{background:#d5dbdb;transform:translateY(-2px)}
-   129|.btn-large{padding:12px 30px;font-size:1.15em}
-   130|
-   131|/* ===== Recipe Grid ===== */
-   132|.recipe-grid{
-   133|  display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
-   134|  gap:28px;padding:10px 5px;
-   135|}
-   136|.recipe-card{
-   137|  background:white;padding:12px 12px 18px;
-   138|  box-shadow:2px 4px 12px rgba(0,0,0,.13);
-   139|  position:relative;transition:all .3s;border-radius:2px;
-   140|}
-   141|.recipe-card:nth-child(4n+1){transform:rotate(-.8deg)}
-   142|.recipe-card:nth-child(4n+2){transform:rotate(.6deg)}
-   143|.recipe-card:nth-child(4n+3){transform:rotate(-.4deg)}
-   144|.recipe-card:nth-child(4n+4){transform:rotate(.9deg)}
-   145|.recipe-card:hover{transform:rotate(0) translateY(-6px);box-shadow:3px 8px 20px rgba(0,0,0,.18)}
-   146|.recipe-card::before{
-   147|  content:'';position:absolute;top:-8px;left:50%;
-   148|  transform:translateX(-50%) rotate(-3deg);
-   149|  width:90px;height:22px;
-   150|  background:var(--tape-yellow);
-   151|  border-left:2px dotted rgba(220,190,80,.3);
-   152|  border-right:2px dotted rgba(220,190,80,.3);
-   153|  z-index:2;
-   154|}
-   155|.recipe-card .img-wrap{
-   156|  width:100%;height:175px;overflow:hidden;border-radius:2px;
-   157|  background:linear-gradient(135deg,#f5f0e0,#e8dcc8);
-   158|  display:flex;align-items:center;justify-content:center;
-   159|  position:relative;
-   160|}
-   161|.recipe-card .img-wrap img{
-   162|  width:100%;height:100%;object-fit:cover;transition:transform .4s;
-   163|}
-   164|.recipe-card:hover .img-wrap img{transform:scale(1.08)}
-   165|.recipe-card .img-emoji{font-size:60px}
-   166|.recipe-card .card-body{padding:10px 5px 0}
-   167|.recipe-card h3{font-size:1.35em;color:#5d4037;margin-bottom:6px}
-   168|.recipe-card .tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
-   169|.tag{
-   170|  padding:2px 10px;border-radius:10px;font-size:.8em;
-   171|  display:inline-flex;align-items:center;gap:3px;
-   172|}
-   173|.tag-cat{background:var(--blue);color:#2c5f8d}
-   174|.tag-diff{background:var(--peach);color:#b56a2a}
-   175|.tag-diff .stars{color:#f39c12}
-   176|.recipe-card .ingredients{
-   177|  font-size:.85em;color:var(--ink-light);margin-bottom:8px;
-   178|  line-height:1.5;
-   179|}
-   180|.recipe-card .ingredients::before{content:'🥘 ';font-size:.9em}
-   181|.recipe-card .note{
-   182|  font-size:.85em;color:var(--ink);font-style:italic;
-   183|  background:var(--yellow);padding:4px 8px;border-radius:2px;
-   184|  margin-bottom:10px;display:block;
-   185|}
-   186|.recipe-card .card-actions{
-   187|  display:flex;gap:8px;padding-top:8px;border-top:1px dashed var(--line);
-   188|}
-   189|.card-btn{
-   190|  padding:5px 12px;border-radius:3px;font-size:.85em;
-   191|  transition:all .2s;
-   192|}
-   193|.card-btn-edit{background:#e8f0fe;color:#1a73e8}
-   194|.card-btn-edit:hover{background:#d0e0fd}
-   195|.card-btn-del{background:#fce8e6;color:#d93025}
-   196|.card-btn-del:hover{background:#f8d7d5}
-   197|.card-btn-add{background:#e6f4ea;color:#188038}
-   198|.card-btn-add:hover{background:#ceead6}
-   199|.card-btn-add.added{background:#188038;color:white}
-   200|.card-btn-add.added::before{content:'✓ '}
-   201|
-   202|/* ===== Modal ===== */
-   203|.modal-overlay{
-   204|  position:fixed;top:0;left:0;width:100%;height:100%;
-   205|  background:rgba(0,0,0,.4);z-index:1000;
-   206|  display:flex;align-items:center;justify-content:center;
-   207|  animation:fadeIn .2s;
-   208|}
-   209|.modal{
-   210|  background:var(--paper);padding:30px;border-radius:3px;
-   211|  max-width:500px;width:90%;max-height:90vh;overflow-y:auto;
-   212|  position:relative;
-   213|  box-shadow:0 10px 40px rgba(0,0,0,.3);
-   214|  background-image:
-   215|    repeating-linear-gradient(transparent,transparent 31px,var(--line) 32px);
-   216|}
-   217|.modal::before{
-   218|  content:'';position:absolute;top:-8px;left:50%;
-   219|  transform:translateX(-50%) rotate(2deg);
-   220|  width:120px;height:25px;background:var(--tape-pink);
-   221|  border-left:2px dotted rgba(255,150,140,.3);
-   222|  border-right:2px dotted rgba(255,150,140,.3);
-   223|}
-   224|.modal h2{font-size:1.8em;color:#5d4037;margin-bottom:20px;text-align:center}
-   225|.form-group{margin-bottom:16px;position:relative}
-   226|.form-group label{
-   227|  display:block;margin-bottom:5px;font-size:.95em;color:var(--ink-light);
-   228|  font-family:'Ma Shan Zheng',serif;font-size:1.1em;
-   229|}
-   230|.form-group input,.form-group select,.form-group textarea{
-   231|  width:100%;padding:8px 12px;border:2px dashed var(--ink-light);
-   232|  border-radius:2px;background:white;color:var(--ink);
-   233|}
-   234|.form-group input:focus,.form-group select:focus,.form-group textarea:focus{
-   235|  border-color:var(--accent);outline:none;
-   236|}
-   237|.form-group textarea{resize:vertical;min-height:60px}
-   238|.modal-actions{display:flex;gap:12px;justify-content:center;margin-top:20px}
-   239|
-   240|/* ===== Random Pick ===== */
-   241|.random-page{text-align:center;padding:20px}
-   242|.random-display{
-   243|  background:white;padding:25px;border-radius:3px;
-   244|  box-shadow:3px 5px 15px rgba(0,0,0,.15);
-   245|  max-width:400px;margin:0 auto 25px;position:relative;
-   246|  min-height:380px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-   247|}
-   248|.random-display::before{
-   249|  content:'';position:absolute;top:-8px;left:50%;
-   250|  transform:translateX(-50%) rotate(-2deg);
-   251|  width:100px;height:24px;background:var(--tape-blue);
-   252|  border-left:2px dotted rgba(150,190,220,.3);
-   253|  border-right:2px dotted rgba(150,190,220,.3);
-   254|}
-   255|.random-display .big-emoji{font-size:80px;margin-bottom:10px}
-   256|.random-display .dish-name{font-size:2em;color:#5d4037;font-family:'Ma Shan Zheng',serif}
-   257|.random-display .dish-cat{margin-top:8px}
-   258|.random-display .dish-note{
-   259|  margin-top:12px;font-style:italic;color:var(--ink-light);
-   260|  background:var(--yellow);padding:6px 14px;border-radius:2px;font-size:.9em;
-   261|}
-   262|.random-display .dish-img{
-   263|  width:200px;height:150px;object-fit:cover;border-radius:2px;
-   264|  margin-bottom:12px;box-shadow:1px 3px 8px rgba(0,0,0,.1);
-   265|}
-   266|.random-display.spinning .dish-name{animation:shake .08s infinite}
-   267|@keyframes shake{
-   268|  0%{transform:translateX(-3px)}50%{transform:translateX(3px)}100%{transform:translateX(-3px)}
-   269|}
-   270|.random-display.result .big-emoji{animation:bounce .5s ease}
-   271|@keyframes bounce{
-   272|  0%{transform:scale(0)}60%{transform:scale(1.3)}100%{transform:scale(1)}
-   273|}
-   274|.random-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-   275|.random-history{
-   276|  margin-top:30px;text-align:left;max-width:400px;margin-left:auto;margin-right:auto;
-   277|}
-   278|.random-history h3{font-size:1.3em;color:var(--ink-light);margin-bottom:10px}
-   279|.history-item{
-   280|  display:flex;align-items:center;gap:8px;padding:6px 12px;
-   281|  background:white;border-radius:2px;margin-bottom:6px;
-   282|  box-shadow:1px 2px 4px rgba(0,0,0,.06);font-size:.9em;
-   283|}
-   284|.history-item .h-emoji{font-size:1.3em}
-   285|
-   286|/* ===== Today's Menu ===== */
-   287|.menu-page{padding:10px}
-   288|.menu-header{
-   289|  display:flex;justify-content:space-between;align-items:center;
-   290|  margin-bottom:20px;flex-wrap:wrap;gap:12px;
-   291|}
-   292|.menu-header h2{font-size:1.8em;color:#5d4037}
-   293|.menu-header .menu-actions{display:flex;gap:10px;flex-wrap:wrap}
-   294|.menu-display{
-   295|  background:white;padding:30px;border-radius:3px;
-   296|  box-shadow:2px 5px 15px rgba(0,0,0,.1);position:relative;
-   297|  max-width:600px;margin:0 auto;
-   298|}
-   299|.menu-display::before{
-   300|  content:'';position:absolute;top:-8px;left:50%;
-   301|  transform:translateX(-50%) rotate(-1.5deg);
-   302|  width:140px;height:26px;background:var(--tape-mint);
-   303|  border-left:2px dotted rgba(150,200,170,.3);
-   304|  border-right:2px dotted rgba(150,200,170,.3);
-   305|}
-   306|.menu-display .menu-title{
-   307|  text-align:center;font-size:1.6em;color:#5d4037;
-   308|  margin-bottom:5px;font-family:'Ma Shan Zheng',serif;
-   309|}
-   310|.menu-display .menu-date{
-   311|  text-align:center;font-family:'Caveat',cursive;font-size:1.2em;
-   312|  color:var(--ink-light);margin-bottom:20px;
-   313|}
-   314|.menu-section{margin-bottom:18px}
-   315|.menu-section h4{
-   316|  font-size:1.15em;color:var(--accent);margin-bottom:8px;
-   317|  font-family:'Ma Shan Zheng',serif;border-bottom:2px dotted var(--line);
-   318|  padding-bottom:4px;
-   319|}
-   320|.menu-item{
-   321|  display:flex;align-items:center;gap:10px;padding:8px 0;
-   322|  border-bottom:1px dashed var(--line);
-   323|}
-   324|.menu-item:last-child{border-bottom:none}
-   325|.menu-item .mi-img{
-   326|  width:50px;height:50px;border-radius:3px;object-fit:cover;
-   327|  background:var(--peach);display:flex;align-items:center;justify-content:center;
-   328|  font-size:24px;flex-shrink:0;
-   329|}
-   330|.menu-item .mi-info{flex:1}
-   331|.menu-item .mi-name{font-size:1.1em;color:var(--ink)}
-   332|.menu-item .mi-ingredients{font-size:.8em;color:var(--ink-light)}
-   333|.menu-item .mi-remove{
-   334|  background:none;font-size:1.3em;color:var(--danger);
-   335|  padding:4px 8px;border-radius:3px;transition:all .2s;
-   336|}
-   337|.menu-item .mi-remove:hover{background:#fce8e6}
-   338|.menu-empty{
-   339|  text-align:center;padding:40px 20px;color:var(--ink-light);
-   340|}
-   341|.menu-empty .emoji{font-size:60px;display:block;margin-bottom:10px}
-   342|.menu-summary{
-   343|  display:flex;gap:15px;justify-content:center;flex-wrap:wrap;
-   344|  margin-top:20px;
-   345|}
-   346|.summary-card{
-   347|  background:var(--yellow);padding:8px 18px;border-radius:2px;
-   348|  text-align:center;min-width:80px;
-   349|  box-shadow:1px 2px 4px rgba(0,0,0,.08);
-   350|}
-   351|.summary-card .num{font-family:'Caveat',cursive;font-size:1.8em;color:var(--accent);display:block}
-   352|.summary-card .label{font-size:.8em;color:var(--ink-light)}
-   353|
-   354|/* ===== Share Page ===== */
-   355|.share-page{padding:10px}
-   356|.share-card{
-   357|  background:white;padding:30px;border-radius:3px;
-   358|  box-shadow:2px 5px 15px rgba(0,0,0,.1);
-   359|  max-width:600px;margin:0 auto;position:relative;
-   360|}
-   361|.share-card::before{
-   362|  content:'';position:absolute;top:-8px;left:50%;
-   363|  transform:translateX(-50%) rotate(1.5deg);
-   364|  width:110px;height:24px;background:var(--tape-pink);
-   365|  border-left:2px dotted rgba(255,150,140,.3);
-   366|  border-right:2px dotted rgba(255,150,140,.3);
-   367|}
-   368|.share-card h2{font-size:1.6em;color:#5d4037;text-align:center;margin-bottom:15px}
-   369|.share-card .desc{color:var(--ink-light);text-align:center;margin-bottom:20px;font-size:.95em}
-   370|.share-link-box{
-   371|  display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;
-   372|}
-   373|.share-link-input{
-   374|  flex:1;min-width:200px;padding:10px 14px;
-   375|  border:2px dashed var(--ink-light);border-radius:2px;
-   376|  background:var(--yellow);color:var(--ink);font-size:.9em;
-   377|  overflow:hidden;text-overflow:ellipsis;
-   378|}
-   379|.share-preview{margin-top:20px}
-   380|.share-preview h3{font-size:1.2em;color:var(--ink-light);margin-bottom:10px}
-   381|.share-preview-list{
-   382|  display:flex;gap:10px;flex-wrap:wrap;
-   383|}
-   384|.share-preview-item{
-   385|  background:var(--mint);padding:8px 14px;border-radius:2px;
-   386|  font-size:.9em;display:flex;align-items:center;gap:6px;
-   387|}
-   388|
-   389|/* ===== Shared Menu View ===== */
-   390|#sharedView{
-   391|  position:fixed;top:0;left:0;width:100%;min-height:100vh;
-   392|  background-color:var(--paper);
-   393|  background-image:
-   394|    repeating-linear-gradient(transparent,transparent 31px,var(--line) 32px),
-   395|    linear-gradient(to right,transparent 39px,var(--margin) 40px,transparent 41px);
-   396|  z-index:2000;padding:30px 20px;overflow-y:auto;
-   397|}
-   398|.shared-container{max-width:600px;margin:0 auto;position:relative}
-   399|.shared-header{text-align:center;margin-bottom:25px;position:relative}
-   400|.shared-header::before{
-   401|  content:'';position:absolute;top:-10px;left:50%;
-   402|  transform:translateX(-50%) rotate(-1.5deg);
-   403|  width:220px;height:32px;background:var(--tape-yellow);
-   404|  border-left:3px dotted rgba(220,190,80,.3);
-   405|  border-right:3px dotted rgba(220,190,80,.3);
-   406|}
-   407|.shared-header h1{font-size:2.5em;color:#5d4037;position:relative;z-index:1}
-   408|.shared-header .shared-date{
-   409|  font-family:'Caveat',cursive;font-size:1.3em;color:var(--ink-light);
-   410|  margin-top:5px;
-   411|}
-   412|.shared-header .shared-from{
-   413|  margin-top:8px;font-size:.9em;color:var(--ink-light);
-   414|}
-   415|.shared-menu-card{
-   416|  background:white;padding:25px;border-radius:3px;
-   417|  box-shadow:2px 5px 15px rgba(0,0,0,.12);margin-bottom:20px;
-   418|  position:relative;
-   419|}
-   420|.shared-menu-card::before{
-   421|  content:'';position:absolute;top:-8px;left:30px;
-   422|  width:80px;height:20px;background:var(--tape-mint);
-   423|  transform:rotate(-3deg);
-   424|  border-left:2px dotted rgba(150,200,170,.3);
-   425|  border-right:2px dotted rgba(150,200,170,.3);
-   426|}
-   427|.shared-dish{
-   428|  display:flex;gap:15px;padding:15px 0;
-   429|  border-bottom:1px dashed var(--line);align-items:flex-start;
-   430|}
-   431|.shared-dish:last-child{border-bottom:none}
-   432|.shared-dish .sd-img{
-   433|  width:80px;height:80px;border-radius:3px;object-fit:cover;
-   434|  background:var(--peach);display:flex;align-items:center;justify-content:center;
-   435|  font-size:36px;flex-shrink:0;
-   436|}
-   437|.shared-dish .sd-body{flex:1}
-   438|.shared-dish .sd-name{font-size:1.3em;color:#5d4037;font-family:'Ma Shan Zheng',serif}
-   439|.shared-dish .sd-tags{display:flex;gap:6px;margin:4px 0}
-   440|.shared-dish .sd-note{
-   441|  font-size:.9em;color:var(--ink-light);font-style:italic;
-   442|  background:var(--yellow);padding:4px 8px;border-radius:2px;
-   443|  display:inline-block;margin-top:4px;
-   444|}
-   445|.shared-footer{
-   446|  text-align:center;padding:20px;
-   447|}
-   448|.shared-footer .btn{margin:5px}
-   449|
-   450|/* ===== Toast ===== */
-   451|#toast{
-   452|  position:fixed;bottom:30px;left:50%;transform:translateX(-50%);
-   453|  background:rgba(74,59,42,.92);color:white;padding:12px 28px;
-   454|  border-radius:3px;font-size:.95em;z-index:3000;
-   455|  opacity:0;transition:opacity .3s,bottom .3s;pointer-events:none;
-   456|}
-   457|#toast.show{opacity:1;bottom:40px}
-   458|
-   459|/* ===== Responsive ===== */
-   460|@media(max-width:600px){
-   461|  header h1{font-size:2em}
-   462|  header .date-stamp{display:none}
-   463|  .recipe-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:18px}
-   464|  .recipe-card .img-wrap{height:130px}
-   465|  .recipe-card h3{font-size:1.1em}
-   466|  .tab{padding:8px 16px;font-size:.95em}
-   467|  .toolbar{padding:12px 15px}
-   468|  .modal{padding:25px 20px}
-   469|  .random-display .dish-name{font-size:1.5em}
-   470|}
-   471|
-   472|/* ===== Empty State ===== */
-   473|.empty-state{
-   474|  text-align:center;padding:60px 20px;color:var(--ink-light);
-   475|}
-   476|.empty-state .emoji{font-size:60px;display:block;margin-bottom:15px}
-   477|.empty-state p{font-size:1.1em}
-   478|
-   479|/* ===== Doodle ===== */
-   480|.doodle{position:absolute;opacity:.5;pointer-events:none}
-   481|.doodle-star{top:10px;right:15%;font-size:1.5em;color:#f39c12}
-   482|</style>
-   483|</head>
-   484|<body>
-   485|
-   486|<!-- ===== Shared Menu View ===== -->
-   487|<div id="sharedView" class="hidden">
-   488|  <div class="shared-container">
-   489|    <div class="shared-header">
-   490|      <h1>今日菜单</h1>
-   491|      <div class="shared-date" id="sharedDate"></div>
-   492|      <div class="shared-from" id="sharedFrom"></div>
-   493|    </div>
-   494|    <div id="sharedContent"></div>
-   495|    <div class="shared-footer">
-   496|      <button class="btn btn-primary" onclick="importShared()">📥 导入到我的菜谱库</button>
-   497|      <button class="btn btn-secondary" onclick="closeShared()">🏠 打开我的手账</button>
-   498|    </div>
-   499|  </div>
-   500|</div>
-   501|
-   502|<!-- ===== Main App ===== -->
-   503|<div id="app">
-   504|<header>
-   505|  <div class="date-stamp" id="dateStamp"></div>
-   506|  <h1>家庭菜单手账</h1>
-   507|  <div class="subtitle">~ Family Menu Journal ~</div>
-   508|</header>
-   509|
-   510|<!-- Tabs -->
-   511|<nav class="tabs">
-   512|  <button class="tab active" data-tab="library" onclick="switchTab('library')">📖 菜谱库</button>
-   513|  <button class="tab" data-tab="random" onclick="switchTab('random')">🎲 随机点菜</button>
-   514|  <button class="tab" data-tab="menu" onclick="switchTab('menu')">📋 今日菜单 <span class="badge hidden" id="menuBadge">0</span></button>
-   515|  <button class="tab" data-tab="share" onclick="switchTab('share')">🔗 分享</button>
-   516|</nav>
-   517|
-   518|<!-- ===== Page: Recipe Library ===== -->
-   519|<section id="page-library" class="page active">
-   520|  <div class="toolbar">
-   521|    <input type="text" class="search-box" id="searchInput" placeholder="🔍 搜索菜名或食材..." oninput="renderLibrary()">
-   522|    <div class="filter-btns" id="filterBtns">
-   523|      <button class="filter-btn active" data-cat="all" onclick="setFilter('all')">全部</button>
-   524|      <button class="filter-btn" data-cat="荤菜" onclick="setFilter('荤菜')">荤菜</button>
-   525|      <button class="filter-btn" data-cat="素菜" onclick="setFilter('素菜')">素菜</button>
-   526|      <button class="filter-btn" data-cat="汤品" onclick="setFilter('汤品')">汤品</button>
-   527|      <button class="filter-btn" data-cat="主食" onclick="setFilter('主食')">主食</button>
-   528|      <button class="filter-btn" data-cat="凉菜" onclick="setFilter('凉菜')">凉菜</button>
-   529|    </div>
-   530|    <button class="btn btn-primary" onclick="openModal()">➕ 添加菜谱</button>
-   531|  </div>
-   532|  <div class="recipe-grid" id="recipeGrid"></div>
-   533|</section>
-   534|
-   535|<!-- ===== Page: Random Pick ===== -->
-   536|<section id="page-random" class="page">
-   537|  <div class="random-page">
-   538|    <div class="random-display" id="randomDisplay">
-   539|      <div class="big-emoji">🍳</div>
-   540|      <div class="dish-name" style="color:var(--ink-light)">点击下方按钮开始</div>
-   541|      <div style="color:var(--ink-light);margin-top:10px;font-size:.9em">让命运为你选一道菜~</div>
-   542|    </div>
-   543|    <div class="random-actions">
-   544|      <button class="btn btn-primary btn-large" id="pickBtn" onclick="startPick()">🎲 随机点菜</button>
-   545|      <button class="btn btn-success" id="addToMenuBtn" onclick="addRandomToMenu()" style="display:none">📋 加入今日菜单</button>
-   546|      <button class="btn btn-secondary" id="pickAgainBtn" onclick="startPick()" style="display:none">🔄 再来一次</button>
-   547|    </div>
-   548|    <div class="random-history hidden" id="randomHistory">
-   549|      <h3>📜 点菜历史</h3>
-   550|      <div id="historyList"></div>
-   551|    </div>
-   552|  </div>
-   553|</section>
-   554|
-   555|<!-- ===== Page: Today's Menu ===== -->
-   556|<section id="page-menu" class="page">
-   557|  <div class="menu-page">
-   558|    <div class="menu-header">
-   559|      <h2>📋 今日菜单</h2>
-   560|      <div class="menu-actions">
-   561|        <button class="btn btn-primary" onclick="autoGenerate()">✨ 自动搭配</button>
-   562|        <button class="btn btn-secondary" onclick="switchTab('library')">➕ 手动添加</button>
-   563|        <button class="btn btn-danger" onclick="clearMenu()">🗑️ 清空</button>
-   564|      </div>
-   565|    </div>
-   566|    <div class="menu-display" id="menuDisplay"></div>
-   567|    <div class="menu-summary" id="menuSummary"></div>
-   568|  </div>
-   569|</section>
-   570|
-   571|<!-- ===== Page: Share ===== -->
-   572|<section id="page-share" class="page">
-   573|  <div class="share-page">
-   574|    <div class="share-card">
-   575|      <h2>🔗 分享我的菜单</h2>
-   576|      <p class="desc">生成分享链接，好友打开即可看到你搭配的整套菜品~</p>
-   577|      <div class="share-link-box">
-   578|        <input type="text" class="share-link-input" id="shareLinkInput" placeholder="点击下方按钮生成链接..." readonly>
-   579|        <button class="btn btn-primary" onclick="generateShareLink()">🔗 生成链接</button>
-   580|        <button class="btn btn-success" onclick="copyLink()" id="copyBtn" style="display:none">📋 复制</button>
-   581|      </div>
-   582|      <div class="share-preview" id="sharePreview"></div>
-   583|    </div>
-   584|  </div>
-   585|</section>
-   586|
-   587|</div><!-- /app -->
-   588|
-   589|<!-- ===== Modal ===== -->
-   590|<div id="modalOverlay" class="modal-overlay hidden">
-   591|  <div class="modal">
-   592|    <h2 id="modalTitle">添加菜谱</h2>
-   593|    <input type="hidden" id="editId">
-   594|    <div class="form-group">
-   595|      <label>🍽️ 菜名</label>
-   596|      <input type="text" id="fName" placeholder="如：番茄炒蛋">
-   597|    </div>
-   598|    <div class="form-group">
-   599|      <label>📂 分类</label>
-   600|      <select id="fCategory">
-   601|        <option value="荤菜">荤菜</option>
-   602|        <option value="素菜">素菜</option>
-   603|        <option value="汤品">汤品</option>
-   604|        <option value="主食">主食</option>
-   605|        <option value="凉菜">凉菜</option>
-   606|      </select>
-   607|    </div>
-   608|    <div class="form-group">
-   609|      <label>⭐ 难度</label>
-   610|      <select id="fDifficulty">
-   611|        <option value="简单">简单</option>
-   612|        <option value="中等">中等</option>
-   613|        <option value="复杂">复杂</option>
-   614|      </select>
-   615|    </div>
-   616|    <div class="form-group">
-   617|      <label>🥕 食材（逗号分隔）</label>
-   618|      <input type="text" id="fIngredients" placeholder="番茄, 鸡蛋, 葱, 盐">
-   619|    </div>
-   620|    <div class="form-group">
-   621|      <label>📷 菜品图片</label>
-   622|      <div style="display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap">
-   623|        <input type="text" id="fImage" placeholder="粘贴图片URL（可选）" style="flex:1;min-width:160px">
-   624|        <label for="fPhoto" style="cursor:pointer;padding:8px 16px;background:var(--mint);border-radius:3px;font-size:.9em;white-space:nowrap;box-shadow:1px 2px 4px rgba(0,0,0,.1)">📸 拍照/上传</label>
-   625|        <input type="file" id="fPhoto" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(this)">
-   626|      </div>
-   627|      <div id="photoPreview" style="margin-top:8px"></div>
-   628|    </div>
-   629|    <div class="form-group">
-   630|      <label>📝 备注</label>
-   631|      <textarea id="fNote" placeholder="这道菜的小贴士..."></textarea>
-   632|    </div>
-   633|    <div class="modal-actions">
-   634|      <button class="btn btn-secondary" onclick="closeModal()">取消</button>
-   635|      <button class="btn btn-primary" onclick="saveRecipe()">💾 保存</button>
-   636|    </div>
-   637|  </div>
-   638|</div>
-   639|
-   640|<!-- Toast -->
-   641|<div id="toast"></div>
-   642|
-   643|<script>
-   644|/* ===== Default Recipes ===== */
-   645|const DEFAULT_RECIPES = [
-   646|  {id:1,name:'番茄炒蛋',category:'素菜',difficulty:'简单',ingredients:['番茄','鸡蛋','葱','盐','糖'],image:'images/01-fanqie-chaodan.jpg',note:'国民家常菜，酸甜下饭'},
-   647|  {id:2,name:'红烧肉',category:'荤菜',difficulty:'中等',ingredients:['五花肉','冰糖','生抽','老抽','料酒','姜'],image:'images/02-hongshao-rou.jpg',note:'肥而不腻，色泽红亮'},
-   648|  {id:3,name:'麻婆豆腐',category:'素菜',difficulty:'中等',ingredients:['嫩豆腐','猪肉末','豆瓣酱','花椒粉','蒜苗'],image:'images/03-mapo-doufu.jpg',note:'麻辣鲜香，下饭神器'},
-   649|  {id:4,name:'宫保鸡丁',category:'荤菜',difficulty:'中等',ingredients:['鸡胸肉','花生米','干辣椒','花椒','葱','姜'],image:'images/04-gongbao-jiding.jpg',note:'香辣酥脆，经典川菜'},
-   650|  {id:5,name:'鱼香肉丝',category:'荤菜',difficulty:'中等',ingredients:['猪里脊','木耳','胡萝卜','青椒','泡椒'],image:'images/05-yuxiang-rous.jpg',note:'酸甜微辣，鱼香滋味'},
-   651|  {id:6,name:'青椒土豆丝',category:'素菜',difficulty:'简单',ingredients:['土豆','青椒','蒜','干辣椒','醋'],image:'images/06-qingjiao-tudous.jpg',note:'清脆爽口，百吃不厌'},
-   652|  {id:7,name:'蒜蓉西兰花',category:'素菜',difficulty:'简单',ingredients:['西兰花','蒜','盐','蚝油'],image:'images/07-suanrong-xilanhu.jpg',note:'清淡健康，营养丰富'},
-   653|  {id:8,name:'可乐鸡翅',category:'荤菜',difficulty:'简单',ingredients:['鸡翅','可乐','生抽','姜','料酒'],image:'images/08-kele-jichi.jpg',note:'甜香嫩滑，老少皆宜'},
-   654|  {id:9,name:'糖醋排骨',category:'荤菜',difficulty:'复杂',ingredients:['排骨','醋','糖','生抽','料酒','姜'],image:'images/09-tangcu-paigu.jpg',note:'酸甜适口，肉香四溢'},
-   655|  {id:10,name:'紫菜蛋花汤',category:'汤品',difficulty:'简单',ingredients:['紫菜','鸡蛋','葱花','盐','香油'],image:'images/10-zicai-danhuatang.jpg',note:'清淡鲜美，三分钟搞定'},
-   656|  {id:11,name:'蛋炒饭',category:'主食',difficulty:'简单',ingredients:['隔夜米饭','鸡蛋','葱花','盐','生抽'],image:'images/11-dan-chaofan.jpg',note:'粒粒分明，简单美味'},
-   657|  {id:12,name:'凉拌黄瓜',category:'凉菜',difficulty:'简单',ingredients:['黄瓜','蒜','醋','辣椒油','香油'],image:'images/12-liangban-huanggua.jpg',note:'爽脆开胃，夏日首选'}
-   658|];
-   659|
-   660|/* ===== State ===== */
-   661|let recipes = [];
-   662|let selectedIds = [];
-   663|let currentFilter = 'all';
-   664|let searchKeyword = '';
-   665|let editingId = null;
-   666|let currentPick = null;
-   667|let pickHistory = [];
-   668|let sharedDishes = [];
-   669|
-   670|const STORAGE_KEY = 'family_menu_recipes_v1';
-   671|const MENU_KEY = 'family_menu_selected_v1';
-   672|const HISTORY_KEY = 'family_menu_history_v1';
-   673|const CAT_EMOJI = {'荤菜':'🍖','素菜':'🥬','汤品':'🍲','主食':'🍚','凉菜':'🥒'};
-   674|const CAT_TAPE = {'荤菜':'var(--tape-pink)','素菜':'var(--tape-mint)','汤品':'var(--tape-yellow)','主食':'var(--tape-blue)','凉菜':'rgba(210,180,220,.45)'};
-   675|
-   676|/* ===== Init ===== */
-   677|function init(){
-   678|  loadData();
-   679|  updateDateStamp();
-   680|  const shared = checkShareLink();
-   681|  if(shared){
-   682|    showShared(shared);
-   683|  }
-   684|  renderAll();
-   685|}
-   686|
-   687|function loadData(){
-   688|  const stored = localStorage.getItem(STORAGE_KEY);
-   689|  if(stored){
-   690|    try{recipes = JSON.parse(stored)}catch(e){recipes = [...DEFAULT_RECIPES]}
-   691|  }else{
-   692|    recipes = [...DEFAULT_RECIPES];
-   693|    saveRecipes();
-   694|  }
-   695|  const menu = localStorage.getItem(MENU_KEY);
-   696|  if(menu){
-   697|    try{selectedIds = JSON.parse(menu)}catch(e){selectedIds = []}
-   698|  }
-   699|  const hist = localStorage.getItem(HISTORY_KEY);
-   700|  if(hist){
-   701|    try{pickHistory = JSON.parse(hist)}catch(e){pickHistory = []}
-   702|  }
-   703|}
-   704|
-   705|function saveRecipes(){localStorage.setItem(STORAGE_KEY, JSON.stringify(recipes))}
-   706|function saveMenu(){localStorage.setItem(MENU_KEY, JSON.stringify(selectedIds))}
-   707|function saveHistory(){localStorage.setItem(HISTORY_KEY, JSON.stringify(pickHistory))}
-   708|
-   709|function updateDateStamp(){
-   710|  const d = new Date();
-   711|  const m = d.getMonth()+1, day = d.getDate();
-   712|  const weekDays = ['日','一','二','三','四','五','六'];
-   713|  const w = weekDays[d.getDay()];
-   714|  const stamp = document.getElementById('dateStamp');
-   715|  if(stamp) stamp.innerHTML = `${m}月${day}日<br>周${w}`;
-   716|}
-   717|
-   718|/* ===== Tab Switching ===== */
-   719|function switchTab(tab){
-   720|  document.querySelectorAll('.tab').forEach(t=>{
-   721|    t.classList.toggle('active', t.dataset.tab === tab);
-   722|  });
-   723|  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-   724|  document.getElementById('page-' + tab).classList.add('active');
-   725|  if(tab === 'menu') renderMenu();
-   726|  if(tab === 'share') renderShare();
-   727|  if(tab === 'random') renderHistory();
-   728|}
-   729|
-   730|/* ===== Recipe Library ===== */
-   731|function setFilter(cat){
-   732|  currentFilter = cat;
-   733|  document.querySelectorAll('.filter-btn').forEach(b=>{
-   734|    b.classList.toggle('active', b.dataset.cat === cat);
-   735|  });
-   736|  renderLibrary();
-   737|}
-   738|
-   739|function renderLibrary(){
-   740|  searchKeyword = document.getElementById('searchInput').value.toLowerCase();
-   741|  const grid = document.getElementById('recipeGrid');
-   742|  let filtered = recipes.filter(r=>{
-   743|    const matchCat = currentFilter === 'all' || r.category === currentFilter;
-   744|    const matchSearch = !searchKeyword ||
-   745|      r.name.toLowerCase().includes(searchKeyword) ||
-   746|      (r.ingredients && r.ingredients.some(i => i.toLowerCase().includes(searchKeyword)));
-   747|    return matchCat && matchSearch;
-   748|  });
-   749|
-   750|  if(filtered.length === 0){
-   751|    grid.innerHTML = '<div class="empty-state"><span class="emoji">🍽️</span><p>没有找到菜谱，点击"添加菜谱"创建吧~</p></div>';
-   752|    return;
-   753|  }
-   754|
-   755|  grid.innerHTML = filtered.map(r => {
-   756|    const isSelected = selectedIds.includes(r.id);
-   757|    const stars = '★'.repeat(r.difficulty==='简单'?1:r.difficulty==='中等'?2:3) + '☆'.repeat(r.difficulty==='简单'?2:r.difficulty==='中等'?1:0);
-   758|    const imgHtml = r.image
-   759|      ? `<img src="${r.image}" loading="lazy" onerror="this.style.display='none';this.parentElement.querySelector('.img-emoji').style.display='flex'"><span class="img-emoji" style="display:none">${CAT_EMOJI[r.category]||'🍽️'}</span>`
-   760|      : `<span class="img-emoji">${CAT_EMOJI[r.category]||'🍽️'}</span>`;
-   761|    return `<div class="recipe-card">
-   762|      <div class="img-wrap">${imgHtml}</div>
-   763|      <div class="card-body">
-   764|        <h3>${escapeHtml(r.name)}</h3>
-   765|        <div class="tags">
-   766|          <span class="tag tag-cat">${CAT_EMOJI[r.category]||'🍽️'} ${r.category}</span>
-   767|          <span class="tag tag-diff"><span class="stars">${stars}</span> ${r.difficulty}</span>
-   768|        </div>
-   769|        <div class="ingredients">${r.ingredients ? escapeHtml(r.ingredients.join('、')) : ''}</div>
-   770|        ${r.note ? `<span class="note">💬 ${escapeHtml(r.note)}</span>` : ''}
-   771|        <div class="card-actions">
-   772|          <button class="card-btn card-btn-add ${isSelected?'added':''}" onclick="toggleMenu(${r.id})">${isSelected?'已在菜单':'加入菜单'}</button>
-   773|          <button class="card-btn card-btn-edit" onclick="openModal(${r.id})">✏️ 编辑</button>
-   774|          <button class="card-btn card-btn-del" onclick="deleteRecipe(${r.id})">🗑️ 删除</button>
-   775|        </div>
-   776|      </div>
-   777|    </div>`;
-   778|  }).join('');
-   779|}
-   780|
-   781|/* ===== CRUD ===== */
-   782|let uploadedImageData = null;
-   783|
-   784|function handlePhoto(input){
-   785|  const file = input.files[0];
-   786|  if(!file) return;
-   787|  if(file.size > 10*1024*1024){showToast('图片太大了（>10MB），请重拍~');input.value='';return}
-   788|  const reader = new FileReader();
-   789|  reader.onload = function(e){
-   790|    const img = new Image();
-   791|    img.onload = function(){
-   792|      const canvas = document.createElement('canvas');
-   793|      const maxW = 480, maxH = 360;
-   794|      let w = img.width, h = img.height;
-   795|      if(w > maxW){h = h * maxW / w; w = maxW}
-   796|      if(h > maxH){w = w * maxH / h; h = maxH}
-   797|      canvas.width = Math.round(w);
-   798|      canvas.height = Math.round(h);
-   799|      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-   800|      uploadedImageData = canvas.toDataURL('image/jpeg', 0.82);
-   801|      document.getElementById('photoPreview').innerHTML =
-   802|        '<div style="position:relative;display:inline-block">'+
-   803|        '<img src="'+uploadedImageData+'" style="width:130px;height:98px;object-fit:cover;border-radius:3px;border:2px solid var(--mint);box-shadow:1px 3px 6px rgba(0,0,0,.12)">'+
-   804|        '<button onclick="removePhoto()" style="position:absolute;top:-6px;right:-6px;background:var(--danger);color:white;border:none;border-radius:50%;width:24px;height:24px;font-size:1em;cursor:pointer;box-shadow:0 2px 4px rgba(0,0,0,.2);line-height:24px;text-align:center">×</button>'+
-   805|        '</div>';
-   806|      document.getElementById('fImage').value = '';
-   807|      showToast('📷 图片已添加');
-   808|    };
-   809|    img.src = e.target.result;
-   810|  };
-   811|  reader.readAsDataURL(file);
-   812|}
-   813|
-   814|function removePhoto(){
-   815|  uploadedImageData = null;
-   816|  document.getElementById('photoPreview').innerHTML = '';
-   817|  document.getElementById('fPhoto').value = '';
-   818|}
-   819|
-   820|function openModal(id){
-   821|  editingId = id || null;
-   822|  uploadedImageData = null;
-   823|  document.getElementById('photoPreview').innerHTML = '';
-   824|  document.getElementById('fPhoto').value = '';
-   825|  const overlay = document.getElementById('modalOverlay');
-   826|  const title = document.getElementById('modalTitle');
-   827|  if(id){
-   828|    const r = recipes.find(x => x.id === id);
-   829|    if(!r) return;
-   830|    title.textContent = '编辑菜谱';
-   831|    document.getElementById('fName').value = r.name;
-   832|    document.getElementById('fCategory').value = r.category;
-   833|    document.getElementById('fDifficulty').value = r.difficulty;
-   834|    document.getElementById('fIngredients').value = r.ingredients ? r.ingredients.join(', ') : '';
-   835|    document.getElementById('fImage').value = r.image && !r.image.startsWith('data:') ? r.image : '';
-   836|    document.getElementById('fNote').value = r.note || '';
-   837|    if(r.image && r.image.startsWith('data:')){
-   838|      uploadedImageData = r.image;
-   839|      document.getElementById('photoPreview').innerHTML =
-   840|        '<div style="position:relative;display:inline-block">'+
-   841|        '<img src="'+r.image+'" style="width:130px;height:98px;object-fit:cover;border-radius:3px;border:2px solid var(--mint)">'+
-   842|        '<button onclick="removePhoto()" style="position:absolute;top:-6px;right:-6px;background:var(--danger);color:white;border:none;border-radius:50%;width:24px;height:24px;font-size:1em;cursor:pointer;line-height:24px;text-align:center">×</button>'+
-   843|        '</div>';
-   844|    }
-   845|  }else{
-   846|    title.textContent = '添加菜谱';
-   847|    document.getElementById('fName').value = '';
-   848|    document.getElementById('fCategory').value = '荤菜';
-   849|    document.getElementById('fDifficulty').value = '简单';
-   850|    document.getElementById('fIngredients').value = '';
-   851|    document.getElementById('fImage').value = '';
-   852|    document.getElementById('fNote').value = '';
-   853|  }
-   854|  overlay.classList.remove('hidden');
-   855|}
-   856|
-   857|function closeModal(){
-   858|  document.getElementById('modalOverlay').classList.add('hidden');
-   859|  editingId = null;
-   860|}
-   861|
-   862|function saveRecipe(){
-   863|  const name = document.getElementById('fName').value.trim();
-   864|  if(!name){showToast('请输入菜名~');return}
-   865|  const data = {
-   866|    name: name,
-   867|    category: document.getElementById('fCategory').value,
-   868|    difficulty: document.getElementById('fDifficulty').value,
-   869|    ingredients: document.getElementById('fIngredients').value.split(/[,，、\s]+/).filter(x => x.trim()),
-   870|    image: uploadedImageData || document.getElementById('fImage').value.trim(),
-   871|    note: document.getElementById('fNote').value.trim()
-   872|  };
-   873|  if(editingId){
-   874|    const idx = recipes.findIndex(r => r.id === editingId);
-   875|    if(idx >= 0) recipes[idx] = {...recipes[idx], ...data};
-   876|    showToast('✅ 菜谱已更新');
-   877|  }else{
-   878|    data.id = Date.now();
-   879|    recipes.push(data);
-   880|    showToast('✅ 菜谱已添加');
-   881|  }
-   882|  saveRecipes();
-   883|  renderLibrary();
-   884|  closeModal();
-   885|}
-   886|
-   887|function deleteRecipe(id){
-   888|  const r = recipes.find(x => x.id === id);
-   889|  if(!r) return;
-   890|  if(confirm(`确定删除「${r.name}」吗？`)){
-   891|    recipes = recipes.filter(x => x.id !== id);
-   892|    selectedIds = selectedIds.filter(x => x !== id);
-   893|    saveRecipes();
-   894|    saveMenu();
-   895|    renderLibrary();
-   896|    showToast('🗑️ 已删除');
-   897|  }
-   898|}
-   899|
-   900|/* ===== Random Pick ===== */
-   901|let pickTimer = null;
-   902|function startPick(){
-   903|  if(recipes.length === 0){showToast('请先添加菜谱~');return}
-   904|  const display = document.getElementById('randomDisplay');
-   905|  const pickBtn = document.getElementById('pickBtn');
-   906|  pickBtn.disabled = true;
-   907|  pickBtn.textContent = '🎲 选取中...';
-   908|  document.getElementById('addToMenuBtn').style.display = 'none';
-   909|  document.getElementById('pickAgainBtn').style.display = 'none';
-   910|  display.classList.add('spinning');
-   911|  display.classList.remove('result');
-   912|
-   913|  let count = 0;
-   914|  const maxCount = 20;
-   915|  if(pickTimer) clearInterval(pickTimer);
-   916|
-   917|  pickTimer = setInterval(()=>{
-   918|    const r = recipes[Math.floor(Math.random() * recipes.length)];
-   919|    display.innerHTML = `
-   920|      <div class="big-emoji">${CAT_EMOJI[r.category]||'🍽️'}</div>
-   921|      <div class="dish-name">${escapeHtml(r.name)}</div>
-   922|    `;
-   923|    count++;
-   924|    if(count >= maxCount){
-   925|      clearInterval(pickTimer);
-   926|      pickTimer = null;
-   927|      currentPick = recipes[Math.floor(Math.random() * recipes.length)];
-   928|      display.classList.remove('spinning');
-   929|      display.classList.add('result');
-   930|      display.innerHTML = `
-   931|        ${currentPick.image ? `<img class="dish-img" src="${currentPick.image}" onerror="this.style.display='none'">` : ''}
-   932|        <div class="big-emoji">${CAT_EMOJI[currentPick.category]||'🍽️'}</div>
-   933|        <div class="dish-name">${escapeHtml(currentPick.name)}</div>
-   934|        <div class="dish-cat"><span class="tag tag-cat">${CAT_EMOJI[currentPick.category]||'🍽️'} ${currentPick.category}</span> <span class="tag tag-diff">${currentPick.difficulty}</span></div>
-   935|        ${currentPick.note ? `<div class="dish-note">💬 ${escapeHtml(currentPick.note)}</div>` : ''}
-   936|      `;
-   937|      pickBtn.disabled = false;
-   938|      pickBtn.textContent = '🎲 随机点菜';
-   939|      document.getElementById('addToMenuBtn').style.display = '';
-   940|      document.getElementById('pickAgainBtn').style.display = '';
-   941|      // Add to history
-   942|      pickHistory.unshift({name:currentPick.name, category:currentPick.category, time:new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'})});
-   943|      if(pickHistory.length > 10) pickHistory = pickHistory.slice(0,10);
-   944|      saveHistory();
-   945|      renderHistory();
-   946|    }
-   947|  }, 80);
-   948|}
-   949|
-   950|function addRandomToMenu(){
-   951|  if(!currentPick) return;
-   952|  if(!selectedIds.includes(currentPick.id)){
-   953|    selectedIds.push(currentPick.id);
-   954|    saveMenu();
-   955|    showToast(`✅ 「${currentPick.name}」已加入菜单`);
-   956|  }else{
-   957|    showToast('已经在菜单里啦~');
-   958|  }
-   959|}
-   960|
-   961|function renderHistory(){
-   962|  const histDiv = document.getElementById('randomHistory');
-   963|  const listDiv = document.getElementById('historyList');
-   964|  if(pickHistory.length === 0){
-   965|    histDiv.classList.add('hidden');
-   966|    return;
-   967|  }
-   968|  histDiv.classList.remove('hidden');
-   969|  listDiv.innerHTML = pickHistory.map(h => `
-   970|    <div class="history-item">
-   971|      <span class="h-emoji">${CAT_EMOJI[h.category]||'🍽️'}</span>
-   972|      <span>${escapeHtml(h.name)}</span>
-   973|      <span style="margin-left:auto;color:var(--ink-light);font-size:.85em;font-family:'Caveat',cursive">${h.time}</span>
-   974|    </div>
-   975|  `).join('');
-   976|}
-   977|
-   978|/* ===== Today's Menu ===== */
-   979|function toggleMenu(id){
-   980|  const idx = selectedIds.indexOf(id);
-   981|  if(idx >= 0){
-   982|    selectedIds.splice(idx, 1);
-   983|  }else{
-   984|    selectedIds.push(id);
-   985|  }
-   986|  saveMenu();
-   987|  renderLibrary();
-   988|  updateBadge();
-   989|  showToast(idx >= 0 ? '已从菜单移除' : '已加入菜单');
-   990|}
-   991|
-   992|function removeFromMenu(id){
-   993|  selectedIds = selectedIds.filter(x => x !== id);
-   994|  saveMenu();
-   995|  renderMenu();
-   996|  renderLibrary();
-   997|  updateBadge();
-   998|}
-   999|
-  1000|function clearMenu(){
-  1001|  if(selectedIds.length === 0) return;
-  1002|  if(confirm('确定清空今日菜单吗？')){
-  1003|    selectedIds = [];
-  1004|    saveMenu();
-  1005|    renderMenu();
-  1006|    renderLibrary();
-  1007|    updateBadge();
-  1008|    showToast('已清空菜单');
-  1009|  }
-  1010|}
-  1011|
-  1012|function autoGenerate(){
-  1013|  const cats = ['荤菜','素菜','汤品'];
-  1014|  selectedIds = [];
-  1015|  cats.forEach(cat => {
-  1016|    const pool = recipes.filter(r => r.category === cat);
-  1017|    if(pool.length > 0){
-  1018|      const pick = pool[Math.floor(Math.random() * pool.length)];
-  1019|      selectedIds.push(pick.id);
-  1020|    }
-  1021|  });
-  1022|  // 50% chance add a staple
-  1023|  const staples = recipes.filter(r => r.category === '主食');
-  1024|  if(staples.length > 0 && Math.random() > 0.4){
-  1025|    selectedIds.push(staples[Math.floor(Math.random() * staples.length)].id);
-  1026|  }
-  1027|  // 50% chance add a cold dish
-  1028|  const colds = recipes.filter(r => r.category === '凉菜');
-  1029|  if(colds.length > 0 && Math.random() > 0.4){
-  1030|    selectedIds.push(colds[Math.floor(Math.random() * colds.length)].id);
-  1031|  }
-  1032|  saveMenu();
-  1033|  renderMenu();
-  1034|  renderLibrary();
-  1035|  updateBadge();
-  1036|  showToast('✨ 已为你自动搭配菜单');
-  1037|}
-  1038|
-  1039|function renderMenu(){
-  1040|  const display = document.getElementById('menuDisplay');
-  1041|  const summary = document.getElementById('menuSummary');
-  1042|  if(selectedIds.length === 0){
-  1043|    display.innerHTML = `
-  1044|      <div class="menu-empty">
-  1045|        <span class="emoji">📝</span>
-  1046|        <p>今日菜单还是空的~</p>
-  1047|        <p style="font-size:.9em;margin-top:5px">点击"自动搭配"或去菜谱库手动添加</p>
-  1048|      </div>`;
-  1049|    summary.innerHTML = '';
-  1050|    return;
-  1051|  }
-  1052|
-  1053|  const selected = selectedIds.map(id => recipes.find(r => r.id === id)).filter(r => r);
-  1054|  const cats = ['荤菜','素菜','汤品','主食','凉菜'];
-  1055|  let html = `
-  1056|    <div class="menu-title">~ 今日菜单 ~</div>
-  1057|    <div class="menu-date">${new Date().toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric',weekday:'long'})}</div>
-  1058|  `;
-  1059|  cats.forEach(cat => {
-  1060|    const dishes = selected.filter(r => r.category === cat);
-  1061|    if(dishes.length === 0) return;
-  1062|    html += `<div class="menu-section">
-  1063|      <h4>${CAT_EMOJI[cat]||'🍽️'} ${cat}</h4>`;
-  1064|    dishes.forEach(r => {
-  1065|      const imgHtml = r.image
-  1066|        ? `<img class="mi-img" src="${r.image}" onerror="this.style.display='none';this.parentElement.querySelector('.mi-img-emoji').style.display='flex'"><span class="mi-img mi-img-emoji" style="display:none">${CAT_EMOJI[cat]||'🍽️'}</span>`
-  1067|        : `<span class="mi-img">${CAT_EMOJI[cat]||'🍽️'}</span>`;
-  1068|      html += `<div class="menu-item">
-  1069|        ${imgHtml}
-  1070|        <div class="mi-info">
-  1071|          <div class="mi-name">${escapeHtml(r.name)}</div>
-  1072|          ${r.ingredients ? `<div class="mi-ingredients">${escapeHtml(r.ingredients.join('、'))}</div>` : ''}
-  1073|        </div>
-  1074|        <button class="mi-remove" onclick="removeFromMenu(${r.id})">✕</button>
-  1075|      </div>`;
-  1076|    });
-  1077|    html += `</div>`;
-  1078|  });
-  1079|  display.innerHTML = html;
-  1080|
-  1081|  // Summary
-  1082|  const counts = {};
-  1083|  selected.forEach(r => {counts[r.category] = (counts[r.category]||0)+1});
-  1084|  summary.innerHTML = `
-  1085|    <div class="summary-card"><span class="num">${selected.length}</span><span class="label">总菜品</span></div>
-  1086|    ${cats.map(c => counts[c] ? `<div class="summary-card"><span class="num">${counts[c]}</span><span class="label">${c}</span></div>` : '').join('')}
-  1087|  `;
-  1088|}
-  1089|
-  1090|function updateBadge(){
-  1091|  const badge = document.getElementById('menuBadge');
-  1092|  if(selectedIds.length > 0){
-  1093|    badge.textContent = selectedIds.length;
-  1094|    badge.classList.remove('hidden');
-  1095|  }else{
-  1096|    badge.classList.add('hidden');
-  1097|  }
-  1098|}
-  1099|
-  1100|/* ===== Share ===== */
-  1101|function renderShare(){
-  1102|  const preview = document.getElementById('sharePreview');
-  1103|  if(selectedIds.length === 0){
-  1104|    preview.innerHTML = '<p style="color:var(--ink-light);text-align:center">还没有选择菜品，请先去"今日菜单"添加菜品~</p>';
-  1105|    return;
-  1106|  }
-  1107|  const selected = selectedIds.map(id => recipes.find(r => r.id === id)).filter(r => r);
-  1108|  preview.innerHTML = `
-  1109|    <h3>📋 将分享以下 ${selected.length} 道菜品：</h3>
-  1110|    <div class="share-preview-list">
-  1111|      ${selected.map(r => `<div class="share-preview-item">${CAT_EMOJI[r.category]||'🍽️'} ${escapeHtml(r.name)}</div>`).join('')}
-  1112|    </div>`;
-  1113|}
-  1114|
-  1115|function generateShareLink(){
-  1116|  if(selectedIds.length === 0){
-  1117|    showToast('请先在"今日菜单"中选择菜品~');
-  1118|    return;
-  1119|  }
-  1120|  const selected = selectedIds.map(id => recipes.find(r => r.id === id)).filter(r => r);
-  1121|  const data = selected.map(r => ({
-  1122|    name: r.name, category: r.category, difficulty: r.difficulty,
-  1123|    ingredients: r.ingredients, image: r.image, note: r.note
-  1124|  }));
-  1125|  const json = JSON.stringify(data);
-  1126|  const encoded = encodeBase64(json);
-  1127|  const baseUrl = window.location.href.split('#')[0];
-  1128|  const link = baseUrl + '#menu=' + encoded;
-  1129|  document.getElementById('shareLinkInput').value = link;
-  1130|  document.getElementById('copyBtn').style.display = '';
-  1131|  showToast('✅ 分享链接已生成');
-  1132|}
-  1133|
-  1134|function copyLink(){
-  1135|  const input = document.getElementById('shareLinkInput');
-  1136|  input.select();
-  1137|  input.setSelectionRange(0, 99999);
-  1138|  try{
-  1139|    document.execCommand('copy');
-  1140|    showToast('📋 链接已复制到剪贴板');
-  1141|  }catch(e){
-  1142|    showToast('请手动复制链接~');
-  1143|  }
-  1144|}
-  1145|
-  1146|/* ===== Share Link Encode/Decode (Unicode-safe) ===== */
-  1147|function encodeBase64(str){
-  1148|  const bytes = new TextEncoder().encode(str);
-  1149|  let bin = '';
-  1150|  bytes.forEach(b => bin += String.fromCharCode(b));
-  1151|  return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
-  1152|}
-  1153|
-  1154|function decodeBase64(b64){
-  1155|  b64 = b64.replace(/-/g,'+').replace(/_/g,'/');
-  1156|  const bin = atob(b64);
-  1157|  const bytes = new Uint8Array(bin.length);
-  1158|  for(let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-  1159|  return new TextDecoder().decode(bytes);
-  1160|}
-  1161|
-  1162|function checkShareLink(){
-  1163|  const hash = window.location.hash;
-  1164|  if(hash.startsWith('#menu=')){
-  1165|    try{
-  1166|      const encoded = hash.substring(6);
-  1167|      const json = decodeBase64(encoded);
-  1168|      return JSON.parse(json);
-  1169|    }catch(e){
-  1170|      console.error('解析分享链接失败:', e);
-  1171|      return null;
-  1172|    }
-  1173|  }
-  1174|  return null;
-  1175|}
-  1176|
-  1177|function showShared(dishes){
-  1178|  sharedDishes = dishes;
-  1179|  const view = document.getElementById('sharedView');
-  1180|  const content = document.getElementById('sharedContent');
-  1181|  const dateEl = document.getElementById('sharedDate');
-  1182|  const fromEl = document.getElementById('sharedFrom');
-  1183|
-  1184|  const d = new Date();
-  1185|  dateEl.textContent = '~ ' + d.toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric',weekday:'long'}) + ' ~';
-  1186|  fromEl.textContent = `好友分享了 ${dishes.length} 道菜品`;
-  1187|
-  1188|  const cats = ['荤菜','素菜','汤品','主食','凉菜'];
-  1189|  let html = '<div class="shared-menu-card">';
-  1190|  cats.forEach(cat => {
-  1191|    const dishesInCat = dishes.filter(r => r.category === cat);
-  1192|    if(dishesInCat.length === 0) return;
-  1193|    html += `<div class="menu-section">
-  1194|      <h4 style="font-size:1.2em;color:var(--accent);font-family:'Ma Shan Zheng',serif;border-bottom:2px dotted var(--line);padding-bottom:4px;margin-bottom:10px">${CAT_EMOJI[cat]||'🍽️'} ${cat}</h4>`;
-  1195|    dishesInCat.forEach(r => {
-  1196|      const imgHtml = r.image
-  1197|        ? `<img class="sd-img" src="${r.image}" loading="lazy" onerror="this.style.display='none';this.parentElement.querySelector('.sd-img-emoji').style.display='flex'"><div class="sd-img sd-img-emoji" style="display:none">${CAT_EMOJI[cat]||'🍽️'}</div>`
-  1198|        : `<div class="sd-img">${CAT_EMOJI[cat]||'🍽️'}</div>`;
-  1199|      const stars = '★'.repeat(r.difficulty==='简单'?1:r.difficulty==='中等'?2:3) + '☆'.repeat(r.difficulty==='简单'?2:r.difficulty==='中等'?1:0);
-  1200|      html += `<div class="shared-dish">
-  1201|        ${imgHtml}
-  1202|        <div class="sd-body">
-  1203|          <div class="sd-name">${escapeHtml(r.name)}</div>
-  1204|          <div class="sd-tags">
-  1205|            <span class="tag tag-cat">${CAT_EMOJI[r.category]||'🍽️'} ${r.category}</span>
-  1206|            <span class="tag tag-diff"><span class="stars">${stars}</span></span>
-  1207|          </div>
-  1208|          ${r.ingredients ? `<div style="font-size:.85em;color:var(--ink-light);margin-top:3px">🥘 ${escapeHtml(r.ingredients.join('、'))}</div>` : ''}
-  1209|          ${r.note ? `<span class="sd-note">💬 ${escapeHtml(r.note)}</span>` : ''}
-  1210|        </div>
-  1211|      </div>`;
-  1212|    });
-  1213|    html += `</div>`;
-  1214|  });
-  1215|  html += '</div>';
-  1216|  content.innerHTML = html;
-  1217|  view.classList.remove('hidden');
-  1218|  document.getElementById('app').style.display = 'none';
-  1219|}
-  1220|
-  1221|function closeShared(){
-  1222|  document.getElementById('sharedView').classList.add('hidden');
-  1223|  document.getElementById('app').style.display = '';
-  1224|  // Clear hash
-  1225|  history.replaceState(null, '', window.location.pathname + window.location.search);
-  1226|}
-  1227|
-  1228|function importShared(){
-  1229|  if(sharedDishes.length === 0) return;
-  1230|  let added = 0;
-  1231|  sharedDishes.forEach(d => {
-  1232|    // Check if already exists by name
-  1233|    if(!recipes.some(r => r.name === d.name)){
-  1234|      recipes.push({
-  1235|        id: Date.now() + added,
-  1236|        name: d.name, category: d.category, difficulty: d.difficulty,
-  1237|        ingredients: d.ingredients || [], image: d.image || '', note: d.note || ''
-  1238|      });
-  1239|      added++;
-  1240|    }
-  1241|  });
-  1242|  saveRecipes();
-  1243|  renderAll();
-  1244|  showToast(`✅ 已导入 ${added} 道菜品到菜谱库`);
-  1245|  closeShared();
-  1246|}
-  1247|
-  1248|/* ===== Utility ===== */
-  1249|function escapeHtml(str){
-  1250|  if(!str) return '';
-  1251|  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-  1252|}
-  1253|
-  1254|function showToast(msg){
-  1255|  const toast = document.getElementById('toast');
-  1256|  toast.textContent = msg;
-  1257|  toast.classList.add('show');
-  1258|  clearTimeout(toast._timer);
-  1259|  toast._timer = setTimeout(()=>toast.classList.remove('show'), 2200);
-  1260|}
-  1261|
-  1262|function renderAll(){
-  1263|  renderLibrary();
-  1264|  renderMenu();
-  1265|  updateBadge();
-  1266|}
-  1267|
-  1268|// Close modal on overlay click
-  1269|document.getElementById('modalOverlay').addEventListener('click', function(e){
-  1270|  if(e.target === this) closeModal();
-  1271|});
-  1272|
-  1273|// Keyboard shortcuts
-  1274|document.addEventListener('keydown', function(e){
-  1275|  if(e.key === 'Escape'){
-  1276|    closeModal();
-  1277|  }
-  1278|});
-  1279|
-  1280|// Start
-  1281|init();
-  1282|</script>
-  1283|</body>
-  1284|</html>
-  1285|
+     1|     1|<!DOCTYPE html>
+     2|     2|<html lang="zh-CN">
+     3|     3|<head>
+     4|     4|<meta charset="UTF-8">
+     5|     5|<meta name="viewport" content="width=device-width, initial-scale=1.0">
+     6|     6|<title>📝 家庭菜单手账</title>
+     7|     7|<link rel="preconnect" href="https://fonts.googleapis.com">
+     8|     8|<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+     9|     9|<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+KuaiLe&family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+    10|    10|<style>
+    11|    11|/* ===== Reset & Base ===== */
+    12|    12|*{margin:0;padding:0;box-sizing:border-box}
+    13|    13|:root{
+    14|    14|  --paper:#fdf6e3;--ink:#4a3b2a;--ink-light:#7a6a55;
+    15|    15|  --line:rgba(200,180,140,.22);--margin:rgba(220,100,100,.12);
+    16|    16|  --pink:#ffd6d6;--mint:#c8f0d8;--yellow:#fff9c4;--blue:#c8e0f4;--lav:#e8d5f0;--peach:#ffe0c8;
+    17|    17|  --tape-pink:rgba(255,183,178,.45);--tape-mint:rgba(174,224,199,.45);
+    18|    18|  --tape-yellow:rgba(255,224,130,.45);--tape-blue:rgba(174,210,240,.45);
+    19|    19|  --accent:#e67e22;--danger:#e74c3c;--success:#27ae60;
+    20|    20|}
+    21|    21|html{scroll-behavior:smooth}
+    22|    22|body{
+    23|    23|  font-family:'ZCOOL KuaiLe','KaiTi','STKaiti','楷体',sans-serif;
+    24|    24|  background-color:var(--paper);
+    25|    25|  background-image:
+    26|    26|    repeating-linear-gradient(transparent,transparent 31px,var(--line) 32px),
+    27|    27|    linear-gradient(to right,transparent 39px,var(--margin) 40px,transparent 41px);
+    28|    28|  color:var(--ink);min-height:100vh;padding:15px 15px 60px;
+    29|    29|  line-height:1.6;
+    30|    30|}
+    31|    31|h1,h2,h3{font-family:'Ma Shan Zheng','KaiTi','STKaiti','楷体',serif;font-weight:normal}
+    32|    32|.hidden{display:none!important}
+    33|    33|button{font-family:inherit;cursor:pointer;border:none;outline:none}
+    34|    34|input,select,textarea{font-family:inherit;font-size:1em}
+    35|    35|
+    36|    36|/* ===== Header ===== */
+    37|    37|header{text-align:center;padding:35px 20px 20px;position:relative}
+    38|    38|header::before{
+    39|    39|  content:'';position:absolute;top:18px;left:50%;
+    40|    40|  transform:translateX(-50%) rotate(-1.5deg);
+    41|    41|  width:280px;height:32px;
+    42|    42|  background:var(--tape-pink);
+    43|    43|  border-left:3px dotted rgba(255,150,140,.3);
+    44|    44|  border-right:3px dotted rgba(255,150,140,.3);
+    45|    45|}
+    46|    46|header h1{font-size:2.6em;color:#5d4037;position:relative;z-index:1}
+    47|    47|header .subtitle{
+    48|    48|  font-family:'Caveat','Comic Sans MS',cursive;font-size:1.4em;
+    49|    49|  color:var(--ink-light);margin-top:2px;position:relative;z-index:1;
+    50|    50|}
+    51|    51|header .date-stamp{
+    52|    52|  position:absolute;top:20px;right:20px;
+    53|    53|  font-family:'Caveat',cursive;font-size:1.1em;color:var(--danger);
+    54|    54|  border:2px solid var(--danger);border-radius:50%;
+    55|    55|  width:70px;height:70px;display:flex;align-items:center;justify-content:center;
+    56|    56|  transform:rotate(8deg);line-height:1.2;text-align:center;
+    57|    57|  opacity:.7;
+    58|    58|}
+    59|    59|
+    60|    60|/* ===== Tabs ===== */
+    61|    61|.tabs{display:flex;justify-content:center;gap:12px;margin:15px 0 25px;flex-wrap:wrap}
+    62|    62|.tab{
+    63|    63|  font-size:1.05em;padding:10px 24px;border-radius:3px;
+    64|    64|  position:relative;transition:all .3s ease;
+    65|    65|  box-shadow:1px 2px 4px rgba(0,0,0,.1);color:var(--ink);
+    66|    66|  background:white;
+    67|    67|}
+    68|    68|.tab:nth-child(1){background:var(--pink);transform:rotate(-2deg)}
+    69|    69|.tab:nth-child(2){background:var(--mint);transform:rotate(1.5deg)}
+    70|    70|.tab:nth-child(3){background:var(--yellow);transform:rotate(-1deg)}
+    71|    71|.tab:nth-child(4){background:var(--blue);transform:rotate(2deg)}
+    72|    72|.tab:hover{transform:rotate(0) translateY(-3px);box-shadow:2px 5px 10px rgba(0,0,0,.15)}
+    73|    73|.tab.active{
+    74|    74|  transform:rotate(0) scale(1.12);
+    75|    75|  box-shadow:0 4px 12px rgba(0,0,0,.2);z-index:10;
+    76|    76|  font-weight:bold;
+    77|    77|}
+    78|    78|.tab .badge{
+    79|    79|  display:inline-block;background:var(--danger);color:white;
+    80|    80|  border-radius:50%;width:20px;height:20px;line-height:20px;
+    81|    81|  font-size:.75em;margin-left:4px;font-family:'Caveat',cursive;
+    82|    82|}
+    83|    83|
+    84|    84|/* ===== Pages ===== */
+    85|    85|.page{display:none;max-width:1100px;margin:0 auto;animation:fadeIn .4s}
+    86|    86|.page.active{display:block}
+    87|    87|@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    88|    88|
+    89|    89|/* ===== Toolbar ===== */
+    90|    90|.toolbar{
+    91|    91|  display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:center;
+    92|    92|  background:white;padding:15px 20px;border-radius:3px;
+    93|    93|  box-shadow:1px 3px 8px rgba(0,0,0,.08);position:relative;
+    94|    94|}
+    95|    95|.toolbar::before{
+    96|    96|  content:'';position:absolute;top:-7px;left:30px;
+    97|    97|  width:70px;height:18px;background:var(--tape-mint);
+    98|    98|  transform:rotate(-3deg);
+    99|    99|  border-left:2px dotted rgba(150,200,170,.3);
+   100|   100|  border-right:2px dotted rgba(150,200,170,.3);
+   101|   101|}
+   102|   102|.search-box{
+   103|   103|  flex:1;min-width:150px;padding:8px 14px;border:2px dashed var(--ink-light);
+   104|   104|  border-radius:20px;background:var(--yellow);color:var(--ink);
+   105|   105|}
+   106|   106|.search-box:focus{border-color:var(--accent);outline:none;background:white}
+   107|   107|.filter-btns{display:flex;gap:6px;flex-wrap:wrap}
+   108|   108|.filter-btn{
+   109|   109|  padding:6px 14px;border-radius:15px;font-size:.9em;
+   110|   110|  background:var(--peach);color:var(--ink);transition:all .2s;
+   111|   111|}
+   112|   112|.filter-btn.active{background:var(--accent);color:white;font-weight:bold}
+   113|   113|.filter-btn:hover{transform:translateY(-2px)}
+   114|   114|
+   115|   115|/* ===== Buttons ===== */
+   116|   116|.btn{
+   117|   117|  padding:8px 18px;border-radius:3px;font-size:1em;
+   118|   118|  transition:all .2s;box-shadow:1px 2px 4px rgba(0,0,0,.1);
+   119|   119|  display:inline-flex;align-items:center;gap:6px;
+   120|   120|}
+   121|   121|.btn-primary{background:var(--accent);color:white}
+   122|   122|.btn-primary:hover{background:#d35400;transform:translateY(-2px)}
+   123|   123|.btn-success{background:var(--success);color:white}
+   124|   124|.btn-success:hover{background:#1e8449;transform:translateY(-2px)}
+   125|   125|.btn-danger{background:var(--danger);color:white}
+   126|   126|.btn-danger:hover{background:#c0392b;transform:translateY(-2px)}
+   127|   127|.btn-secondary{background:#ecf0f1;color:var(--ink)}
+   128|   128|.btn-secondary:hover{background:#d5dbdb;transform:translateY(-2px)}
+   129|   129|.btn-large{padding:12px 30px;font-size:1.15em}
+   130|   130|
+   131|   131|/* ===== Recipe Grid ===== */
+   132|   132|.recipe-grid{
+   133|   133|  display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+   134|   134|  gap:28px;padding:10px 5px;
+   135|   135|}
+   136|   136|.recipe-card{
+   137|   137|  background:white;padding:12px 12px 18px;
+   138|   138|  box-shadow:2px 4px 12px rgba(0,0,0,.13);
+   139|   139|  position:relative;transition:all .3s;border-radius:2px;
+   140|   140|}
+   141|   141|.recipe-card:nth-child(4n+1){transform:rotate(-.8deg)}
+   142|   142|.recipe-card:nth-child(4n+2){transform:rotate(.6deg)}
+   143|   143|.recipe-card:nth-child(4n+3){transform:rotate(-.4deg)}
+   144|   144|.recipe-card:nth-child(4n+4){transform:rotate(.9deg)}
+   145|   145|.recipe-card:hover{transform:rotate(0) translateY(-6px);box-shadow:3px 8px 20px rgba(0,0,0,.18)}
+   146|   146|.recipe-card::before{
+   147|   147|  content:'';position:absolute;top:-8px;left:50%;
+   148|   148|  transform:translateX(-50%) rotate(-3deg);
+   149|   149|  width:90px;height:22px;
+   150|   150|  background:var(--tape-yellow);
+   151|   151|  border-left:2px dotted rgba(220,190,80,.3);
+   152|   152|  border-right:2px dotted rgba(220,190,80,.3);
+   153|   153|  z-index:2;
+   154|   154|}
+   155|   155|.recipe-card .img-wrap{
+   156|   156|  width:100%;height:175px;overflow:hidden;border-radius:2px;
+   157|   157|  background:linear-gradient(135deg,#f5f0e0,#e8dcc8);
+   158|   158|  display:flex;align-items:center;justify-content:center;
+   159|   159|  position:relative;
+   160|   160|}
+   161|   161|.recipe-card .img-wrap img{
+   162|   162|  width:100%;height:100%;object-fit:cover;transition:transform .4s;
+   163|   163|}
+   164|   164|.recipe-card:hover .img-wrap img{transform:scale(1.08)}
+   165|   165|.recipe-card .img-emoji{font-size:60px}
+   166|   166|.recipe-card .card-body{padding:10px 5px 0}
+   167|   167|.recipe-card h3{font-size:1.35em;color:#5d4037;margin-bottom:6px}
+   168|   168|.recipe-card .tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+   169|   169|.tag{
+   170|   170|  padding:2px 10px;border-radius:10px;font-size:.8em;
+   171|   171|  display:inline-flex;align-items:center;gap:3px;
+   172|   172|}
+   173|   173|.tag-cat{background:var(--blue);color:#2c5f8d}
+   174|   174|.tag-diff{background:var(--peach);color:#b56a2a}
+   175|   175|.tag-diff .stars{color:#f39c12}
+   176|   176|.recipe-card .ingredients{
+   177|   177|  font-size:.85em;color:var(--ink-light);margin-bottom:8px;
+   178|   178|  line-height:1.5;
+   179|   179|}
+   180|   180|.recipe-card .ingredients::before{content:'🥘 ';font-size:.9em}
+   181|   181|.recipe-card .note{
+   182|   182|  font-size:.85em;color:var(--ink);font-style:italic;
+   183|   183|  background:var(--yellow);padding:4px 8px;border-radius:2px;
+   184|   184|  margin-bottom:10px;display:block;
+   185|   185|}
+   186|   186|.recipe-card .card-actions{
+   187|   187|  display:flex;gap:8px;padding-top:8px;border-top:1px dashed var(--line);
+   188|   188|}
+   189|   189|.card-btn{
+   190|   190|  padding:5px 12px;border-radius:3px;font-size:.85em;
+   191|   191|  transition:all .2s;
+   192|   192|}
+   193|   193|.card-btn-edit{background:#e8f0fe;color:#1a73e8}
+   194|   194|.card-btn-edit:hover{background:#d0e0fd}
+   195|   195|.card-btn-del{background:#fce8e6;color:#d93025}
+   196|   196|.card-btn-del:hover{background:#f8d7d5}
+   197|   197|.card-btn-add{background:#e6f4ea;color:#188038}
+   198|   198|.card-btn-add:hover{background:#ceead6}
+   199|   199|.card-btn-add.added{background:#188038;color:white}
+   200|   200|.card-btn-add.added::before{content:'✓ '}
+   201|   201|
+   202|   202|/* ===== Modal ===== */
+   203|   203|.modal-overlay{
+   204|   204|  position:fixed;top:0;left:0;width:100%;height:100%;
+   205|   205|  background:rgba(0,0,0,.4);z-index:1000;
+   206|   206|  display:flex;align-items:center;justify-content:center;
+   207|   207|  animation:fadeIn .2s;
+   208|   208|}
+   209|   209|.modal{
+   210|   210|  background:var(--paper);padding:30px;border-radius:3px;
+   211|   211|  max-width:500px;width:90%;max-height:90vh;overflow-y:auto;
+   212|   212|  position:relative;
+   213|   213|  box-shadow:0 10px 40px rgba(0,0,0,.3);
+   214|   214|  background-image:
+   215|   215|    repeating-linear-gradient(transparent,transparent 31px,var(--line) 32px);
+   216|   216|}
+   217|   217|.modal::before{
+   218|   218|  content:'';position:absolute;top:-8px;left:50%;
+   219|   219|  transform:translateX(-50%) rotate(2deg);
+   220|   220|  width:120px;height:25px;background:var(--tape-pink);
+   221|   221|  border-left:2px dotted rgba(255,150,140,.3);
+   222|   222|  border-right:2px dotted rgba(255,150,140,.3);
+   223|   223|}
+   224|   224|.modal h2{font-size:1.8em;color:#5d4037;margin-bottom:20px;text-align:center}
+   225|   225|.form-group{margin-bottom:16px;position:relative}
+   226|   226|.form-group label{
+   227|   227|  display:block;margin-bottom:5px;font-size:.95em;color:var(--ink-light);
+   228|   228|  font-family:'Ma Shan Zheng',serif;font-size:1.1em;
+   229|   229|}
+   230|   230|.form-group input,.form-group select,.form-group textarea{
+   231|   231|  width:100%;padding:8px 12px;border:2px dashed var(--ink-light);
+   232|   232|  border-radius:2px;background:white;color:var(--ink);
+   233|   233|}
+   234|   234|.form-group input:focus,.form-group select:focus,.form-group textarea:focus{
+   235|   235|  border-color:var(--accent);outline:none;
+   236|   236|}
+   237|   237|.form-group textarea{resize:vertical;min-height:60px}
+   238|   238|.modal-actions{display:flex;gap:12px;justify-content:center;margin-top:20px}
+   239|   239|
+   240|   240|/* ===== Random Pick ===== */
+   241|   241|.random-page{text-align:center;padding:20px}
+   242|   242|.random-display{
+   243|   243|  background:white;padding:25px;border-radius:3px;
+   244|   244|  box-shadow:3px 5px 15px rgba(0,0,0,.15);
+   245|   245|  max-width:400px;margin:0 auto 25px;position:relative;
+   246|   246|  min-height:380px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+   247|   247|}
+   248|   248|.random-display::before{
+   249|   249|  content:'';position:absolute;top:-8px;left:50%;
+   250|   250|  transform:translateX(-50%) rotate(-2deg);
+   251|   251|  width:100px;height:24px;background:var(--tape-blue);
+   252|   252|  border-left:2px dotted rgba(150,190,220,.3);
+   253|   253|  border-right:2px dotted rgba(150,190,220,.3);
+   254|   254|}
+   255|   255|.random-display .big-emoji{font-size:80px;margin-bottom:10px}
+   256|   256|.random-display .dish-name{font-size:2em;color:#5d4037;font-family:'Ma Shan Zheng',serif}
+   257|   257|.random-display .dish-cat{margin-top:8px}
+   258|   258|.random-display .dish-note{
+   259|   259|  margin-top:12px;font-style:italic;color:var(--ink-light);
+   260|   260|  background:var(--yellow);padding:6px 14px;border-radius:2px;font-size:.9em;
+   261|   261|}
+   262|   262|.random-display .dish-img{
+   263|   263|  width:200px;height:150px;object-fit:cover;border-radius:2px;
+   264|   264|  margin-bottom:12px;box-shadow:1px 3px 8px rgba(0,0,0,.1);
+   265|   265|}
+   266|   266|.random-display.spinning .dish-name{animation:shake .08s infinite}
+   267|   267|@keyframes shake{
+   268|   268|  0%{transform:translateX(-3px)}50%{transform:translateX(3px)}100%{transform:translateX(-3px)}
+   269|   269|}
+   270|   270|.random-display.result .big-emoji{animation:bounce .5s ease}
+   271|   271|@keyframes bounce{
+   272|   272|  0%{transform:scale(0)}60%{transform:scale(1.3)}100%{transform:scale(1)}
+   273|   273|}
+   274|   274|.random-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+   275|   275|.random-history{
+   276|   276|  margin-top:30px;text-align:left;max-width:400px;margin-left:auto;margin-right:auto;
+   277|   277|}
+   278|   278|.random-history h3{font-size:1.3em;color:var(--ink-light);margin-bottom:10px}
+   279|   279|.history-item{
+   280|   280|  display:flex;align-items:center;gap:8px;padding:6px 12px;
+   281|   281|  background:white;border-radius:2px;margin-bottom:6px;
+   282|   282|  box-shadow:1px 2px 4px rgba(0,0,0,.06);font-size:.9em;
+   283|   283|}
+   284|   284|.history-item .h-emoji{font-size:1.3em}
+   285|   285|
+   286|   286|/* ===== Today's Menu ===== */
+   287|   287|.menu-page{padding:10px}
+   288|   288|.menu-header{
+   289|   289|  display:flex;justify-content:space-between;align-items:center;
+   290|   290|  margin-bottom:20px;flex-wrap:wrap;gap:12px;
+   291|   291|}
+   292|   292|.menu-header h2{font-size:1.8em;color:#5d4037}
+   293|   293|.menu-header .menu-actions{display:flex;gap:10px;flex-wrap:wrap}
+   294|   294|.menu-display{
+   295|   295|  background:white;padding:30px;border-radius:3px;
+   296|   296|  box-shadow:2px 5px 15px rgba(0,0,0,.1);position:relative;
+   297|   297|  max-width:600px;margin:0 auto;
+   298|   298|}
+   299|   299|.menu-display::before{
+   300|   300|  content:'';position:absolute;top:-8px;left:50%;
+   301|   301|  transform:translateX(-50%) rotate(-1.5deg);
+   302|   302|  width:140px;height:26px;background:var(--tape-mint);
+   303|   303|  border-left:2px dotted rgba(150,200,170,.3);
+   304|   304|  border-right:2px dotted rgba(150,200,170,.3);
+   305|   305|}
+   306|   306|.menu-display .menu-title{
+   307|   307|  text-align:center;font-size:1.6em;color:#5d4037;
+   308|   308|  margin-bottom:5px;font-family:'Ma Shan Zheng',serif;
+   309|   309|}
+   310|   310|.menu-display .menu-date{
+   311|   311|  text-align:center;font-family:'Caveat',cursive;font-size:1.2em;
+   312|   312|  color:var(--ink-light);margin-bottom:20px;
+   313|   313|}
+   314|   314|.menu-section{margin-bottom:18px}
+   315|   315|.menu-section h4{
+   316|   316|  font-size:1.15em;color:var(--accent);margin-bottom:8px;
+   317|   317|  font-family:'Ma Shan Zheng',serif;border-bottom:2px dotted var(--line);
+   318|   318|  padding-bottom:4px;
+   319|   319|}
+   320|   320|.menu-item{
+   321|   321|  display:flex;align-items:center;gap:10px;padding:8px 0;
+   322|   322|  border-bottom:1px dashed var(--line);
+   323|   323|}
+   324|   324|.menu-item:last-child{border-bottom:none}
+   325|   325|.menu-item .mi-img{
+   326|   326|  width:50px;height:50px;border-radius:3px;object-fit:cover;
+   327|   327|  background:var(--peach);display:flex;align-items:center;justify-content:center;
+   328|   328|  font-size:24px;flex-shrink:0;
+   329|   329|}
+   330|   330|.menu-item .mi-info{flex:1}
+   331|   331|.menu-item .mi-name{font-size:1.1em;color:var(--ink)}
+   332|   332|.menu-item .mi-ingredients{font-size:.8em;color:var(--ink-light)}
+   333|   333|.menu-item .mi-remove{
+   334|   334|  background:none;font-size:1.3em;color:var(--danger);
+   335|   335|  padding:4px 8px;border-radius:3px;transition:all .2s;
+   336|   336|}
+   337|   337|.menu-item .mi-remove:hover{background:#fce8e6}
+   338|   338|.menu-empty{
+   339|   339|  text-align:center;padding:40px 20px;color:var(--ink-light);
+   340|   340|}
+   341|   341|.menu-empty .emoji{font-size:60px;display:block;margin-bottom:10px}
+   342|   342|.menu-summary{
+   343|   343|  display:flex;gap:15px;justify-content:center;flex-wrap:wrap;
+   344|   344|  margin-top:20px;
+   345|   345|}
+   346|   346|.summary-card{
+   347|   347|  background:var(--yellow);padding:8px 18px;border-radius:2px;
+   348|   348|  text-align:center;min-width:80px;
+   349|   349|  box-shadow:1px 2px 4px rgba(0,0,0,.08);
+   350|   350|}
+   351|   351|.summary-card .num{font-family:'Caveat',cursive;font-size:1.8em;color:var(--accent);display:block}
+   352|   352|.summary-card .label{font-size:.8em;color:var(--ink-light)}
+   353|   353|
+   354|   354|/* ===== Share Page ===== */
+   355|   355|.share-page{padding:10px}
+   356|   356|.share-card{
+   357|   357|  background:white;padding:30px;border-radius:3px;
+   358|   358|  box-shadow:2px 5px 15px rgba(0,0,0,.1);
+   359|   359|  max-width:600px;margin:0 auto;position:relative;
+   360|   360|}
+   361|   361|.share-card::before{
+   362|   362|  content:'';position:absolute;top:-8px;left:50%;
+   363|   363|  transform:translateX(-50%) rotate(1.5deg);
+   364|   364|  width:110px;height:24px;background:var(--tape-pink);
+   365|   365|  border-left:2px dotted rgba(255,150,140,.3);
+   366|   366|  border-right:2px dotted rgba(255,150,140,.3);
+   367|   367|}
+   368|   368|.share-card h2{font-size:1.6em;color:#5d4037;text-align:center;margin-bottom:15px}
+   369|   369|.share-card .desc{color:var(--ink-light);text-align:center;margin-bottom:20px;font-size:.95em}
+   370|   370|.share-link-box{
+   371|   371|  display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;
+   372|   372|}
+   373|   373|.share-link-input{
+   374|   374|  flex:1;min-width:200px;padding:10px 14px;
+   375|   375|  border:2px dashed var(--ink-light);border-radius:2px;
+   376|   376|  background:var(--yellow);color:var(--ink);font-size:.9em;
+   377|   377|  overflow:hidden;text-overflow:ellipsis;
+   378|   378|}
+   379|   379|.share-preview{margin-top:20px}
+   380|   380|.share-preview h3{font-size:1.2em;color:var(--ink-light);margin-bottom:10px}
+   381|   381|.share-preview-list{
+   382|   382|  display:flex;gap:10px;flex-wrap:wrap;
+   383|   383|}
+   384|   384|.share-preview-item{
+   385|   385|  background:var(--mint);padding:8px 14px;border-radius:2px;
+   386|   386|  font-size:.9em;display:flex;align-items:center;gap:6px;
+   387|   387|}
+   388|   388|
+   389|   389|/* ===== Shared Menu View ===== */
+   390|   390|#sharedView{
+   391|   391|  position:fixed;top:0;left:0;width:100%;min-height:100vh;
+   392|   392|  background-color:var(--paper);
+   393|   393|  background-image:
+   394|   394|    repeating-linear-gradient(transparent,transparent 31px,var(--line) 32px),
+   395|   395|    linear-gradient(to right,transparent 39px,var(--margin) 40px,transparent 41px);
+   396|   396|  z-index:2000;padding:30px 20px;overflow-y:auto;
+   397|   397|}
+   398|   398|.shared-container{max-width:600px;margin:0 auto;position:relative}
+   399|   399|.shared-header{text-align:center;margin-bottom:25px;position:relative}
+   400|   400|.shared-header::before{
+   401|   401|  content:'';position:absolute;top:-10px;left:50%;
+   402|   402|  transform:translateX(-50%) rotate(-1.5deg);
+   403|   403|  width:220px;height:32px;background:var(--tape-yellow);
+   404|   404|  border-left:3px dotted rgba(220,190,80,.3);
+   405|   405|  border-right:3px dotted rgba(220,190,80,.3);
+   406|   406|}
+   407|   407|.shared-header h1{font-size:2.5em;color:#5d4037;position:relative;z-index:1}
+   408|   408|.shared-header .shared-date{
+   409|   409|  font-family:'Caveat',cursive;font-size:1.3em;color:var(--ink-light);
+   410|   410|  margin-top:5px;
+   411|   411|}
+   412|   412|.shared-header .shared-from{
+   413|   413|  margin-top:8px;font-size:.9em;color:var(--ink-light);
+   414|   414|}
+   415|   415|.shared-menu-card{
+   416|   416|  background:white;padding:25px;border-radius:3px;
+   417|   417|  box-shadow:2px 5px 15px rgba(0,0,0,.12);margin-bottom:20px;
+   418|   418|  position:relative;
+   419|   419|}
+   420|   420|.shared-menu-card::before{
+   421|   421|  content:'';position:absolute;top:-8px;left:30px;
+   422|   422|  width:80px;height:20px;background:var(--tape-mint);
+   423|   423|  transform:rotate(-3deg);
+   424|   424|  border-left:2px dotted rgba(150,200,170,.3);
+   425|   425|  border-right:2px dotted rgba(150,200,170,.3);
+   426|   426|}
+   427|   427|.shared-dish{
+   428|   428|  display:flex;gap:15px;padding:15px 0;
+   429|   429|  border-bottom:1px dashed var(--line);align-items:flex-start;
+   430|   430|}
+   431|   431|.shared-dish:last-child{border-bottom:none}
+   432|   432|.shared-dish .sd-img{
+   433|   433|  width:80px;height:80px;border-radius:3px;object-fit:cover;
+   434|   434|  background:var(--peach);display:flex;align-items:center;justify-content:center;
+   435|   435|  font-size:36px;flex-shrink:0;
+   436|   436|}
+   437|   437|.shared-dish .sd-body{flex:1}
+   438|   438|.shared-dish .sd-name{font-size:1.3em;color:#5d4037;font-family:'Ma Shan Zheng',serif}
+   439|   439|.shared-dish .sd-tags{display:flex;gap:6px;margin:4px 0}
+   440|   440|.shared-dish .sd-note{
+   441|   441|  font-size:.9em;color:var(--ink-light);font-style:italic;
+   442|   442|  background:var(--yellow);padding:4px 8px;border-radius:2px;
+   443|   443|  display:inline-block;margin-top:4px;
+   444|   444|}
+   445|   445|.shared-footer{
+   446|   446|  text-align:center;padding:20px;
+   447|   447|}
+   448|   448|.shared-footer .btn{margin:5px}
+   449|   449|
+   450|   450|/* ===== Toast ===== */
+   451|   451|#toast{
+   452|   452|  position:fixed;bottom:30px;left:50%;transform:translateX(-50%);
+   453|   453|  background:rgba(74,59,42,.92);color:white;padding:12px 28px;
+   454|   454|  border-radius:3px;font-size:.95em;z-index:3000;
+   455|   455|  opacity:0;transition:opacity .3s,bottom .3s;pointer-events:none;
+   456|   456|}
+   457|   457|#toast.show{opacity:1;bottom:40px}
+   458|   458|
+   459|   459|/* ===== Responsive ===== */
+   460|   460|@media(max-width:600px){
+   461|   461|  header h1{font-size:2em}
+   462|   462|  header .date-stamp{display:none}
+   463|   463|  .recipe-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:18px}
+   464|   464|  .recipe-card .img-wrap{height:130px}
+   465|   465|  .recipe-card h3{font-size:1.1em}
+   466|   466|  .tab{padding:8px 16px;font-size:.95em}
+   467|   467|  .toolbar{padding:12px 15px}
+   468|   468|  .modal{padding:25px 20px}
+   469|   469|  .random-display .dish-name{font-size:1.5em}
+   470|   470|}
+   471|   471|
+   472|   472|/* ===== Empty State ===== */
+   473|   473|.empty-state{
+   474|   474|  text-align:center;padding:60px 20px;color:var(--ink-light);
+   475|   475|}
+   476|   476|.empty-state .emoji{font-size:60px;display:block;margin-bottom:15px}
+   477|   477|.empty-state p{font-size:1.1em}
+   478|   478|
+   479|   479|/* ===== Doodle ===== */
+   480|   480|.doodle{position:absolute;opacity:.5;pointer-events:none}
+   481|   481|.doodle-star{top:10px;right:15%;font-size:1.5em;color:#f39c12}
+   482|   482|</style>
+   483|   483|</head>
+   484|   484|<body>
+   485|   485|
+   486|   486|<!-- ===== Shared Menu View ===== -->
+   487|   487|<div id="sharedView" class="hidden">
+   488|   488|  <div class="shared-container">
+   489|   489|    <div class="shared-header">
+   490|   490|      <h1>今日菜单</h1>
+   491|   491|      <div class="shared-date" id="sharedDate"></div>
+   492|   492|      <div class="shared-from" id="sharedFrom"></div>
+   493|   493|    </div>
+   494|   494|    <div id="sharedContent"></div>
+   495|   495|    <div class="shared-footer">
+   496|   496|      <button class="btn btn-primary" onclick="importShared()">📥 导入到我的菜谱库</button>
+   497|   497|      <button class="btn btn-secondary" onclick="closeShared()">🏠 打开我的手账</button>
+   498|   498|    </div>
+   499|   499|  </div>
+   500|   500|</div>
+   501|   501|
+   502|   502|<!-- ===== Main App ===== -->
+   503|   503|<div id="app">
+   504|   504|<header>
+   505|   505|  <div class="date-stamp" id="dateStamp"></div>
+   506|   506|  <h1>家庭菜单手账</h1>
+   507|   507|  <div class="subtitle">~ Family Menu Journal ~</div>
+   508|   508|</header>
+   509|   509|
+   510|   510|<!-- Tabs -->
+   511|   511|<nav class="tabs">
+   512|   512|  <button class="tab active" data-tab="library" onclick="switchTab('library')">📖 菜谱库</button>
+   513|   513|  <button class="tab" data-tab="random" onclick="switchTab('random')">🎲 随机点菜</button>
+   514|   514|  <button class="tab" data-tab="menu" onclick="switchTab('menu')">📋 今日菜单 <span class="badge hidden" id="menuBadge">0</span></button>
+   515|   515|  <button class="tab" data-tab="share" onclick="switchTab('share')">🔗 分享</button>
+   516|   516|</nav>
+   517|   517|
+   518|   518|<!-- ===== Page: Recipe Library ===== -->
+   519|   519|<section id="page-library" class="page active">
+   520|   520|  <div class="toolbar">
+   521|   521|    <input type="text" class="search-box" id="searchInput" placeholder="🔍 搜索菜名或食材..." oninput="renderLibrary()">
+   522|   522|    <div class="filter-btns" id="filterBtns">
+   523|   523|      <button class="filter-btn active" data-cat="all" onclick="setFilter('all')">全部</button>
+   524|   524|      <button class="filter-btn" data-cat="荤菜" onclick="setFilter('荤菜')">荤菜</button>
+   525|   525|      <button class="filter-btn" data-cat="素菜" onclick="setFilter('素菜')">素菜</button>
+   526|   526|      <button class="filter-btn" data-cat="汤品" onclick="setFilter('汤品')">汤品</button>
+   527|   527|      <button class="filter-btn" data-cat="主食" onclick="setFilter('主食')">主食</button>
+   528|   528|      <button class="filter-btn" data-cat="凉菜" onclick="setFilter('凉菜')">凉菜</button>
+   529|   529|    </div>
+   530|   530|    <button class="btn btn-primary" onclick="openModal()">➕ 添加菜谱</button>
+   531|   531|  </div>
+   532|   532|  <div class="recipe-grid" id="recipeGrid"></div>
+   533|   533|</section>
+   534|   534|
+   535|   535|<!-- ===== Page: Random Pick ===== -->
+   536|   536|<section id="page-random" class="page">
+   537|   537|  <div class="random-page">
+   538|   538|    <div class="random-display" id="randomDisplay">
+   539|   539|      <div class="big-emoji">🍳</div>
+   540|   540|      <div class="dish-name" style="color:var(--ink-light)">点击下方按钮开始</div>
+   541|   541|      <div style="color:var(--ink-light);margin-top:10px;font-size:.9em">让命运为你选一道菜~</div>
+   542|   542|    </div>
+   543|   543|    <div class="random-actions">
+   544|   544|      <button class="btn btn-primary btn-large" id="pickBtn" onclick="startPick()">🎲 随机点菜</button>
+   545|   545|      <button class="btn btn-success" id="addToMenuBtn" onclick="addRandomToMenu()" style="display:none">📋 加入今日菜单</button>
+   546|   546|      <button class="btn btn-secondary" id="pickAgainBtn" onclick="startPick()" style="display:none">🔄 再来一次</button>
+   547|   547|    </div>
+   548|   548|    <div class="random-history hidden" id="randomHistory">
+   549|   549|      <h3>📜 点菜历史</h3>
+   550|   550|      <div id="historyList"></div>
+   551|   551|    </div>
+   552|   552|  </div>
+   553|   553|</section>
+   554|   554|
+   555|   555|<!-- ===== Page: Today's Menu ===== -->
+   556|   556|<section id="page-menu" class="page">
+   557|   557|  <div class="menu-page">
+   558|   558|    <div class="menu-header">
+   559|   559|      <h2>📋 今日菜单</h2>
+   560|   560|      <div class="menu-actions">
+   561|   561|        <button class="btn btn-primary" onclick="autoGenerate()">✨ 自动搭配</button>
+   562|   562|        <button class="btn btn-secondary" onclick="switchTab('library')">➕ 手动添加</button>
+   563|   563|        <button class="btn btn-danger" onclick="clearMenu()">🗑️ 清空</button>
+   564|   564|      </div>
+   565|   565|    </div>
+   566|   566|    <div class="menu-display" id="menuDisplay"></div>
+   567|   567|    <div class="menu-summary" id="menuSummary"></div>
+   568|   568|  </div>
+   569|   569|</section>
+   570|   570|
+   571|   571|<!-- ===== Page: Share ===== -->
+   572|   572|<section id="page-share" class="page">
+   573|   573|  <div class="share-page">
+   574|   574|    <div class="share-card">
+   575|   575|      <h2>🔗 分享我的菜单</h2>
+   576|   576|      <p class="desc">生成分享链接，好友打开即可看到你搭配的整套菜品~</p>
+   577|   577|      <div class="share-link-box">
+   578|   578|        <input type="text" class="share-link-input" id="shareLinkInput" placeholder="点击下方按钮生成链接..." readonly>
+   579|   579|        <button class="btn btn-primary" onclick="generateShareLink()">🔗 生成链接</button>
+   580|   580|        <button class="btn btn-success" onclick="copyLink()" id="copyBtn" style="display:none">📋 复制</button>
+   581|   581|      </div>
+   582|   582|      <div class="share-preview" id="sharePreview"></div>
+   583|   583|    </div>
+   584|   584|  </div>
+   585|   585|</section>
+   586|   586|
+   587|   587|</div><!-- /app -->
+   588|   588|
+   589|   589|<!-- ===== Modal ===== -->
+   590|   590|<div id="modalOverlay" class="modal-overlay hidden">
+   591|   591|  <div class="modal">
+   592|   592|    <h2 id="modalTitle">添加菜谱</h2>
+   593|   593|    <input type="hidden" id="editId">
+   594|   594|    <div class="form-group">
+   595|   595|      <label>🍽️ 菜名</label>
+   596|   596|      <input type="text" id="fName" placeholder="如：番茄炒蛋">
+   597|   597|    </div>
+   598|   598|    <div class="form-group">
+   599|   599|      <label>📂 分类</label>
+   600|   600|      <select id="fCategory">
+   601|   601|        <option value="荤菜">荤菜</option>
+   602|   602|        <option value="素菜">素菜</option>
+   603|   603|        <option value="汤品">汤品</option>
+   604|   604|        <option value="主食">主食</option>
+   605|   605|        <option value="凉菜">凉菜</option>
+   606|   606|      </select>
+   607|   607|    </div>
+   608|   608|    <div class="form-group">
+   609|   609|      <label>⭐ 难度</label>
+   610|   610|      <select id="fDifficulty">
+   611|   611|        <option value="简单">简单</option>
+   612|   612|        <option value="中等">中等</option>
+   613|   613|        <option value="复杂">复杂</option>
+   614|   614|      </select>
+   615|   615|    </div>
+   616|   616|    <div class="form-group">
+   617|   617|      <label>🥕 食材（逗号分隔）</label>
+   618|   618|      <input type="text" id="fIngredients" placeholder="番茄, 鸡蛋, 葱, 盐">
+   619|   619|    </div>
+   620|   620|    <div class="form-group">
+   621|   621|      <label>📷 菜品图片</label>
+   622|   622|      <div style="display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap">
+   623|   623|        <input type="text" id="fImage" placeholder="粘贴图片URL（可选）" style="flex:1;min-width:160px">
+   624|   624|        <label for="fPhoto" style="cursor:pointer;padding:8px 16px;background:var(--mint);border-radius:3px;font-size:.9em;white-space:nowrap;box-shadow:1px 2px 4px rgba(0,0,0,.1)">📸 拍照/上传</label>
+   625|   625|        <input type="file" id="fPhoto" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(this)">
+   626|   626|      </div>
+   627|   627|      <div id="photoPreview" style="margin-top:8px"></div>
+   628|   628|    </div>
+   629|   629|    <div class="form-group">
+   630|   630|      <label>📝 备注</label>
+   631|   631|      <textarea id="fNote" placeholder="这道菜的小贴士..."></textarea>
+   632|   632|    </div>
+   633|   633|    <div class="modal-actions">
+   634|   634|      <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+   635|   635|      <button class="btn btn-primary" onclick="saveRecipe()">💾 保存</button>
+   636|   636|    </div>
+   637|   637|  </div>
+   638|   638|</div>
+   639|   639|
+   640|   640|<!-- Toast -->
+   641|   641|<div id="toast"></div>
+   642|   642|
+   643|   643|<script>
+   644|   644|/* ===== Default Recipes ===== */
+   645|   645|const DEFAULT_RECIPES = [
+   646|   646|  {id:1,name:'番茄炒蛋',category:'素菜',difficulty:'简单',ingredients:['番茄','鸡蛋','葱','盐','糖'],image:'https://1163489248.github.io/menu-handaccount/images/01-fanqie-chaodan.jpg',note:'国民家常菜，酸甜下饭'},
+   647|   647|  {id:2,name:'红烧肉',category:'荤菜',difficulty:'中等',ingredients:['五花肉','冰糖','生抽','老抽','料酒','姜'],image:'https://1163489248.github.io/menu-handaccount/images/02-hongshao-rou.jpg',note:'肥而不腻，色泽红亮'},
+   648|   648|  {id:3,name:'麻婆豆腐',category:'素菜',difficulty:'中等',ingredients:['嫩豆腐','猪肉末','豆瓣酱','花椒粉','蒜苗'],image:'https://1163489248.github.io/menu-handaccount/images/03-mapo-doufu.jpg',note:'麻辣鲜香，下饭神器'},
+   649|   649|  {id:4,name:'宫保鸡丁',category:'荤菜',difficulty:'中等',ingredients:['鸡胸肉','花生米','干辣椒','花椒','葱','姜'],image:'https://1163489248.github.io/menu-handaccount/images/04-gongbao-jiding.jpg',note:'香辣酥脆，经典川菜'},
+   650|   650|  {id:5,name:'鱼香肉丝',category:'荤菜',difficulty:'中等',ingredients:['猪里脊','木耳','胡萝卜','青椒','泡椒'],image:'https://1163489248.github.io/menu-handaccount/images/05-yuxiang-rous.jpg',note:'酸甜微辣，鱼香滋味'},
+   651|   651|  {id:6,name:'青椒土豆丝',category:'素菜',difficulty:'简单',ingredients:['土豆','青椒','蒜','干辣椒','醋'],image:'https://1163489248.github.io/menu-handaccount/images/06-qingjiao-tudous.jpg',note:'清脆爽口，百吃不厌'},
+   652|   652|  {id:7,name:'蒜蓉西兰花',category:'素菜',difficulty:'简单',ingredients:['西兰花','蒜','盐','蚝油'],image:'https://1163489248.github.io/menu-handaccount/images/07-suanrong-xilanhu.jpg',note:'清淡健康，营养丰富'},
+   653|   653|  {id:8,name:'可乐鸡翅',category:'荤菜',difficulty:'简单',ingredients:['鸡翅','可乐','生抽','姜','料酒'],image:'https://1163489248.github.io/menu-handaccount/images/08-kele-jichi.jpg',note:'甜香嫩滑，老少皆宜'},
+   654|   654|  {id:9,name:'糖醋排骨',category:'荤菜',difficulty:'复杂',ingredients:['排骨','醋','糖','生抽','料酒','姜'],image:'https://1163489248.github.io/menu-handaccount/images/09-tangcu-paigu.jpg',note:'酸甜适口，肉香四溢'},
+   655|   655|  {id:10,name:'紫菜蛋花汤',category:'汤品',difficulty:'简单',ingredients:['紫菜','鸡蛋','葱花','盐','香油'],image:'https://1163489248.github.io/menu-handaccount/images/10-zicai-danhuatang.jpg',note:'清淡鲜美，三分钟搞定'},
+   656|   656|  {id:11,name:'蛋炒饭',category:'主食',difficulty:'简单',ingredients:['隔夜米饭','鸡蛋','葱花','盐','生抽'],image:'https://1163489248.github.io/menu-handaccount/images/11-dan-chaofan.jpg',note:'粒粒分明，简单美味'},
+   657|   657|  {id:12,name:'凉拌黄瓜',category:'凉菜',difficulty:'简单',ingredients:['黄瓜','蒜','醋','辣椒油','香油'],image:'https://1163489248.github.io/menu-handaccount/images/12-liangban-huanggua.jpg',note:'爽脆开胃，夏日首选'}
+   658|   658|];
+   659|   659|
+   660|   660|/* ===== State ===== */
+   661|   661|let recipes = [];
+   662|   662|let selectedIds = [];
+   663|   663|let currentFilter = 'all';
+   664|   664|let searchKeyword = '';
+   665|   665|let editingId = null;
+   666|   666|let currentPick = null;
+   667|   667|let pickHistory = [];
+   668|   668|let sharedDishes = [];
+   669|   669|
+   670|   670|const STORAGE_KEY = 'family_menu_recipes_v1';
+   671|   671|const MENU_KEY = 'family_menu_selected_v1';
+   672|   672|const HISTORY_KEY = 'family_menu_history_v1';
+   673|   673|const CAT_EMOJI = {'荤菜':'🍖','素菜':'🥬','汤品':'🍲','主食':'🍚','凉菜':'🥒'};
+   674|   674|const CAT_TAPE = {'荤菜':'var(--tape-pink)','素菜':'var(--tape-mint)','汤品':'var(--tape-yellow)','主食':'var(--tape-blue)','凉菜':'rgba(210,180,220,.45)'};
+   675|   675|
+   676|   676|/* ===== Init ===== */
+   677|   677|function init(){
+   678|   678|  loadData();
+   679|   679|  updateDateStamp();
+   680|   680|  const shared = checkShareLink();
+   681|   681|  if(shared){
+   682|   682|    showShared(shared);
+   683|   683|  }
+   684|   684|  renderAll();
+   685|   685|}
+   686|   686|
+   687|   687|function loadData(){
+   688|   688|  const stored = localStorage.getItem(STORAGE_KEY);
+   689|   689|  if(stored){
+   690|   690|    try{recipes = JSON.parse(stored)}catch(e){recipes = [...DEFAULT_RECIPES]}
+   691|   691|  }else{
+   692|   692|    recipes = [...DEFAULT_RECIPES];
+   693|   693|    saveRecipes();
+   694|   694|  }
+   695|   695|  const menu = localStorage.getItem(MENU_KEY);
+   696|   696|  if(menu){
+   697|   697|    try{selectedIds = JSON.parse(menu)}catch(e){selectedIds = []}
+   698|   698|  }
+   699|   699|  const hist = localStorage.getItem(HISTORY_KEY);
+   700|   700|  if(hist){
+   701|   701|    try{pickHistory = JSON.parse(hist)}catch(e){pickHistory = []}
+   702|   702|  }
+   703|   703|}
+   704|   704|
+   705|   705|function saveRecipes(){localStorage.setItem(STORAGE_KEY, JSON.stringify(recipes))}
+   706|   706|function saveMenu(){localStorage.setItem(MENU_KEY, JSON.stringify(selectedIds))}
+   707|   707|function saveHistory(){localStorage.setItem(HISTORY_KEY, JSON.stringify(pickHistory))}
+   708|   708|
+   709|   709|function updateDateStamp(){
+   710|   710|  const d = new Date();
+   711|   711|  const m = d.getMonth()+1, day = d.getDate();
+   712|   712|  const weekDays = ['日','一','二','三','四','五','六'];
+   713|   713|  const w = weekDays[d.getDay()];
+   714|   714|  const stamp = document.getElementById('dateStamp');
+   715|   715|  if(stamp) stamp.innerHTML = `${m}月${day}日<br>周${w}`;
+   716|   716|}
+   717|   717|
+   718|   718|/* ===== Tab Switching ===== */
+   719|   719|function switchTab(tab){
+   720|   720|  document.querySelectorAll('.tab').forEach(t=>{
+   721|   721|    t.classList.toggle('active', t.dataset.tab === tab);
+   722|   722|  });
+   723|   723|  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+   724|   724|  document.getElementById('page-' + tab).classList.add('active');
+   725|   725|  if(tab === 'menu') renderMenu();
+   726|   726|  if(tab === 'share') renderShare();
+   727|   727|  if(tab === 'random') renderHistory();
+   728|   728|}
+   729|   729|
+   730|   730|/* ===== Recipe Library ===== */
+   731|   731|function setFilter(cat){
+   732|   732|  currentFilter = cat;
+   733|   733|  document.querySelectorAll('.filter-btn').forEach(b=>{
+   734|   734|    b.classList.toggle('active', b.dataset.cat === cat);
+   735|   735|  });
+   736|   736|  renderLibrary();
+   737|   737|}
+   738|   738|
+   739|   739|function renderLibrary(){
+   740|   740|  searchKeyword = document.getElementById('searchInput').value.toLowerCase();
+   741|   741|  const grid = document.getElementById('recipeGrid');
+   742|   742|  let filtered = recipes.filter(r=>{
+   743|   743|    const matchCat = currentFilter === 'all' || r.category === currentFilter;
+   744|   744|    const matchSearch = !searchKeyword ||
+   745|   745|      r.name.toLowerCase().includes(searchKeyword) ||
+   746|   746|      (r.ingredients && r.ingredients.some(i => i.toLowerCase().includes(searchKeyword)));
+   747|   747|    return matchCat && matchSearch;
+   748|   748|  });
+   749|   749|
+   750|   750|  if(filtered.length === 0){
+   751|   751|    grid.innerHTML = '<div class="empty-state"><span class="emoji">🍽️</span><p>没有找到菜谱，点击"添加菜谱"创建吧~</p></div>';
+   752|   752|    return;
+   753|   753|  }
+   754|   754|
+   755|   755|  grid.innerHTML = filtered.map(r => {
+   756|   756|    const isSelected = selectedIds.includes(r.id);
+   757|   757|    const stars = '★'.repeat(r.difficulty==='简单'?1:r.difficulty==='中等'?2:3) + '☆'.repeat(r.difficulty==='简单'?2:r.difficulty==='中等'?1:0);
+   758|   758|    const imgHtml = r.image
+   759|   759|      ? `<img src="${r.image}" loading="lazy" onerror="this.style.display='none';this.parentElement.querySelector('.img-emoji').style.display='flex'"><span class="img-emoji" style="display:none">${CAT_EMOJI[r.category]||'🍽️'}</span>`
+   760|   760|      : `<span class="img-emoji">${CAT_EMOJI[r.category]||'🍽️'}</span>`;
+   761|   761|    return `<div class="recipe-card">
+   762|   762|      <div class="img-wrap">${imgHtml}</div>
+   763|   763|      <div class="card-body">
+   764|   764|        <h3>${escapeHtml(r.name)}</h3>
+   765|   765|        <div class="tags">
+   766|   766|          <span class="tag tag-cat">${CAT_EMOJI[r.category]||'🍽️'} ${r.category}</span>
+   767|   767|          <span class="tag tag-diff"><span class="stars">${stars}</span> ${r.difficulty}</span>
+   768|   768|        </div>
+   769|   769|        <div class="ingredients">${r.ingredients ? escapeHtml(r.ingredients.join('、')) : ''}</div>
+   770|   770|        ${r.note ? `<span class="note">💬 ${escapeHtml(r.note)}</span>` : ''}
+   771|   771|        <div class="card-actions">
+   772|   772|          <button class="card-btn card-btn-add ${isSelected?'added':''}" onclick="toggleMenu(${r.id})">${isSelected?'已在菜单':'加入菜单'}</button>
+   773|   773|          <button class="card-btn card-btn-edit" onclick="openModal(${r.id})">✏️ 编辑</button>
+   774|   774|          <button class="card-btn card-btn-del" onclick="deleteRecipe(${r.id})">🗑️ 删除</button>
+   775|   775|        </div>
+   776|   776|      </div>
+   777|   777|    </div>`;
+   778|   778|  }).join('');
+   779|   779|}
+   780|   780|
+   781|   781|/* ===== CRUD ===== */
+   782|   782|let uploadedImageData = null;
+   783|   783|
+   784|   784|function handlePhoto(input){
+   785|   785|  const file = input.files[0];
+   786|   786|  if(!file) return;
+   787|   787|  if(file.size > 10*1024*1024){showToast('图片太大了（>10MB），请重拍~');input.value='';return}
+   788|   788|  const reader = new FileReader();
+   789|   789|  reader.onload = function(e){
+   790|   790|    const img = new Image();
+   791|   791|    img.onload = function(){
+   792|   792|      const canvas = document.createElement('canvas');
+   793|   793|      const maxW = 480, maxH = 360;
+   794|   794|      let w = img.width, h = img.height;
+   795|   795|      if(w > maxW){h = h * maxW / w; w = maxW}
+   796|   796|      if(h > maxH){w = w * maxH / h; h = maxH}
+   797|   797|      canvas.width = Math.round(w);
+   798|   798|      canvas.height = Math.round(h);
+   799|   799|      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+   800|   800|      uploadedImageData = canvas.toDataURL('image/jpeg', 0.82);
+   801|   801|      document.getElementById('photoPreview').innerHTML =
+   802|   802|        '<div style="position:relative;display:inline-block">'+
+   803|   803|        '<img src="'+uploadedImageData+'" style="width:130px;height:98px;object-fit:cover;border-radius:3px;border:2px solid var(--mint);box-shadow:1px 3px 6px rgba(0,0,0,.12)">'+
+   804|   804|        '<button onclick="removePhoto()" style="position:absolute;top:-6px;right:-6px;background:var(--danger);color:white;border:none;border-radius:50%;width:24px;height:24px;font-size:1em;cursor:pointer;box-shadow:0 2px 4px rgba(0,0,0,.2);line-height:24px;text-align:center">×</button>'+
+   805|   805|        '</div>';
+   806|   806|      document.getElementById('fImage').value = '';
+   807|   807|      showToast('📷 图片已添加');
+   808|   808|    };
+   809|   809|    img.src = e.target.result;
+   810|   810|  };
+   811|   811|  reader.readAsDataURL(file);
+   812|   812|}
+   813|   813|
+   814|   814|function removePhoto(){
+   815|   815|  uploadedImageData = null;
+   816|   816|  document.getElementById('photoPreview').innerHTML = '';
+   817|   817|  document.getElementById('fPhoto').value = '';
+   818|   818|}
+   819|   819|
+   820|   820|function openModal(id){
+   821|   821|  editingId = id || null;
+   822|   822|  uploadedImageData = null;
+   823|   823|  document.getElementById('photoPreview').innerHTML = '';
+   824|   824|  document.getElementById('fPhoto').value = '';
+   825|   825|  const overlay = document.getElementById('modalOverlay');
+   826|   826|  const title = document.getElementById('modalTitle');
+   827|   827|  if(id){
+   828|   828|    const r = recipes.find(x => x.id === id);
+   829|   829|    if(!r) return;
+   830|   830|    title.textContent = '编辑菜谱';
+   831|   831|    document.getElementById('fName').value = r.name;
+   832|   832|    document.getElementById('fCategory').value = r.category;
+   833|   833|    document.getElementById('fDifficulty').value = r.difficulty;
+   834|   834|    document.getElementById('fIngredients').value = r.ingredients ? r.ingredients.join(', ') : '';
+   835|   835|    document.getElementById('fImage').value = r.image && !r.image.startsWith('data:') ? r.image : '';
+   836|   836|    document.getElementById('fNote').value = r.note || '';
+   837|   837|    if(r.image && r.image.startsWith('data:')){
+   838|   838|      uploadedImageData = r.image;
+   839|   839|      document.getElementById('photoPreview').innerHTML =
+   840|   840|        '<div style="position:relative;display:inline-block">'+
+   841|   841|        '<img src="'+r.image+'" style="width:130px;height:98px;object-fit:cover;border-radius:3px;border:2px solid var(--mint)">'+
+   842|   842|        '<button onclick="removePhoto()" style="position:absolute;top:-6px;right:-6px;background:var(--danger);color:white;border:none;border-radius:50%;width:24px;height:24px;font-size:1em;cursor:pointer;line-height:24px;text-align:center">×</button>'+
+   843|   843|        '</div>';
+   844|   844|    }
+   845|   845|  }else{
+   846|   846|    title.textContent = '添加菜谱';
+   847|   847|    document.getElementById('fName').value = '';
+   848|   848|    document.getElementById('fCategory').value = '荤菜';
+   849|   849|    document.getElementById('fDifficulty').value = '简单';
+   850|   850|    document.getElementById('fIngredients').value = '';
+   851|   851|    document.getElementById('fImage').value = '';
+   852|   852|    document.getElementById('fNote').value = '';
+   853|   853|  }
+   854|   854|  overlay.classList.remove('hidden');
+   855|   855|}
+   856|   856|
+   857|   857|function closeModal(){
+   858|   858|  document.getElementById('modalOverlay').classList.add('hidden');
+   859|   859|  editingId = null;
+   860|   860|}
+   861|   861|
+   862|   862|function saveRecipe(){
+   863|   863|  const name = document.getElementById('fName').value.trim();
+   864|   864|  if(!name){showToast('请输入菜名~');return}
+   865|   865|  const data = {
+   866|   866|    name: name,
+   867|   867|    category: document.getElementById('fCategory').value,
+   868|   868|    difficulty: document.getElementById('fDifficulty').value,
+   869|   869|    ingredients: document.getElementById('fIngredients').value.split(/[,，、\s]+/).filter(x => x.trim()),
+   870|   870|    image: uploadedImageData || document.getElementById('fImage').value.trim(),
+   871|   871|    note: document.getElementById('fNote').value.trim()
+   872|   872|  };
+   873|   873|  if(editingId){
+   874|   874|    const idx = recipes.findIndex(r => r.id === editingId);
+   875|   875|    if(idx >= 0) recipes[idx] = {...recipes[idx], ...data};
+   876|   876|    showToast('✅ 菜谱已更新');
+   877|   877|  }else{
+   878|   878|    data.id = Date.now();
+   879|   879|    recipes.push(data);
+   880|   880|    showToast('✅ 菜谱已添加');
+   881|   881|  }
+   882|   882|  saveRecipes();
+   883|   883|  renderLibrary();
+   884|   884|  closeModal();
+   885|   885|}
+   886|   886|
+   887|   887|function deleteRecipe(id){
+   888|   888|  const r = recipes.find(x => x.id === id);
+   889|   889|  if(!r) return;
+   890|   890|  if(confirm(`确定删除「${r.name}」吗？`)){
+   891|   891|    recipes = recipes.filter(x => x.id !== id);
+   892|   892|    selectedIds = selectedIds.filter(x => x !== id);
+   893|   893|    saveRecipes();
+   894|   894|    saveMenu();
+   895|   895|    renderLibrary();
+   896|   896|    showToast('🗑️ 已删除');
+   897|   897|  }
+   898|   898|}
+   899|   899|
+   900|   900|/* ===== Random Pick ===== */
+   901|   901|let pickTimer = null;
+   902|   902|function startPick(){
+   903|   903|  if(recipes.length === 0){showToast('请先添加菜谱~');return}
+   904|   904|  const display = document.getElementById('randomDisplay');
+   905|   905|  const pickBtn = document.getElementById('pickBtn');
+   906|   906|  pickBtn.disabled = true;
+   907|   907|  pickBtn.textContent = '🎲 选取中...';
+   908|   908|  document.getElementById('addToMenuBtn').style.display = 'none';
+   909|   909|  document.getElementById('pickAgainBtn').style.display = 'none';
+   910|   910|  display.classList.add('spinning');
+   911|   911|  display.classList.remove('result');
+   912|   912|
+   913|   913|  let count = 0;
+   914|   914|  const maxCount = 20;
+   915|   915|  if(pickTimer) clearInterval(pickTimer);
+   916|   916|
+   917|   917|  pickTimer = setInterval(()=>{
+   918|   918|    const r = recipes[Math.floor(Math.random() * recipes.length)];
+   919|   919|    display.innerHTML = `
+   920|   920|      <div class="big-emoji">${CAT_EMOJI[r.category]||'🍽️'}</div>
+   921|   921|      <div class="dish-name">${escapeHtml(r.name)}</div>
+   922|   922|    `;
+   923|   923|    count++;
+   924|   924|    if(count >= maxCount){
+   925|   925|      clearInterval(pickTimer);
+   926|   926|      pickTimer = null;
+   927|   927|      currentPick = recipes[Math.floor(Math.random() * recipes.length)];
+   928|   928|      display.classList.remove('spinning');
+   929|   929|      display.classList.add('result');
+   930|   930|      display.innerHTML = `
+   931|   931|        ${currentPick.image ? `<img class="dish-img" src="${currentPick.image}" onerror="this.style.display='none'">` : ''}
+   932|   932|        <div class="big-emoji">${CAT_EMOJI[currentPick.category]||'🍽️'}</div>
+   933|   933|        <div class="dish-name">${escapeHtml(currentPick.name)}</div>
+   934|   934|        <div class="dish-cat"><span class="tag tag-cat">${CAT_EMOJI[currentPick.category]||'🍽️'} ${currentPick.category}</span> <span class="tag tag-diff">${currentPick.difficulty}</span></div>
+   935|   935|        ${currentPick.note ? `<div class="dish-note">💬 ${escapeHtml(currentPick.note)}</div>` : ''}
+   936|   936|      `;
+   937|   937|      pickBtn.disabled = false;
+   938|   938|      pickBtn.textContent = '🎲 随机点菜';
+   939|   939|      document.getElementById('addToMenuBtn').style.display = '';
+   940|   940|      document.getElementById('pickAgainBtn').style.display = '';
+   941|   941|      // Add to history
+   942|   942|      pickHistory.unshift({name:currentPick.name, category:currentPick.category, time:new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'})});
+   943|   943|      if(pickHistory.length > 10) pickHistory = pickHistory.slice(0,10);
+   944|   944|      saveHistory();
+   945|   945|      renderHistory();
+   946|   946|    }
+   947|   947|  }, 80);
+   948|   948|}
+   949|   949|
+   950|   950|function addRandomToMenu(){
+   951|   951|  if(!currentPick) return;
+   952|   952|  if(!selectedIds.includes(currentPick.id)){
+   953|   953|    selectedIds.push(currentPick.id);
+   954|   954|    saveMenu();
+   955|   955|    showToast(`✅ 「${currentPick.name}」已加入菜单`);
+   956|   956|  }else{
+   957|   957|    showToast('已经在菜单里啦~');
+   958|   958|  }
+   959|   959|}
+   960|   960|
+   961|   961|function renderHistory(){
+   962|   962|  const histDiv = document.getElementById('randomHistory');
+   963|   963|  const listDiv = document.getElementById('historyList');
+   964|   964|  if(pickHistory.length === 0){
+   965|   965|    histDiv.classList.add('hidden');
+   966|   966|    return;
+   967|   967|  }
+   968|   968|  histDiv.classList.remove('hidden');
+   969|   969|  listDiv.innerHTML = pickHistory.map(h => `
+   970|   970|    <div class="history-item">
+   971|   971|      <span class="h-emoji">${CAT_EMOJI[h.category]||'🍽️'}</span>
+   972|   972|      <span>${escapeHtml(h.name)}</span>
+   973|   973|      <span style="margin-left:auto;color:var(--ink-light);font-size:.85em;font-family:'Caveat',cursive">${h.time}</span>
+   974|   974|    </div>
+   975|   975|  `).join('');
+   976|   976|}
+   977|   977|
+   978|   978|/* ===== Today's Menu ===== */
+   979|   979|function toggleMenu(id){
+   980|   980|  const idx = selectedIds.indexOf(id);
+   981|   981|  if(idx >= 0){
+   982|   982|    selectedIds.splice(idx, 1);
+   983|   983|  }else{
+   984|   984|    selectedIds.push(id);
+   985|   985|  }
+   986|   986|  saveMenu();
+   987|   987|  renderLibrary();
+   988|   988|  updateBadge();
+   989|   989|  showToast(idx >= 0 ? '已从菜单移除' : '已加入菜单');
+   990|   990|}
+   991|   991|
+   992|   992|function removeFromMenu(id){
+   993|   993|  selectedIds = selectedIds.filter(x => x !== id);
+   994|   994|  saveMenu();
+   995|   995|  renderMenu();
+   996|   996|  renderLibrary();
+   997|   997|  updateBadge();
+   998|   998|}
+   999|   999|
+  1000|  1000|function clearMenu(){
+  1001|  1001|  if(selectedIds.length === 0) return;
+  1002|  1002|  if(confirm('确定清空今日菜单吗？')){
+  1003|  1003|    selectedIds = [];
+  1004|  1004|    saveMenu();
+  1005|  1005|    renderMenu();
+  1006|  1006|    renderLibrary();
+  1007|  1007|    updateBadge();
+  1008|  1008|    showToast('已清空菜单');
+  1009|  1009|  }
+  1010|  1010|}
+  1011|  1011|
+  1012|  1012|function autoGenerate(){
+  1013|  1013|  const cats = ['荤菜','素菜','汤品'];
+  1014|  1014|  selectedIds = [];
+  1015|  1015|  cats.forEach(cat => {
+  1016|  1016|    const pool = recipes.filter(r => r.category === cat);
+  1017|  1017|    if(pool.length > 0){
+  1018|  1018|      const pick = pool[Math.floor(Math.random() * pool.length)];
+  1019|  1019|      selectedIds.push(pick.id);
+  1020|  1020|    }
+  1021|  1021|  });
+  1022|  1022|  // 50% chance add a staple
+  1023|  1023|  const staples = recipes.filter(r => r.category === '主食');
+  1024|  1024|  if(staples.length > 0 && Math.random() > 0.4){
+  1025|  1025|    selectedIds.push(staples[Math.floor(Math.random() * staples.length)].id);
+  1026|  1026|  }
+  1027|  1027|  // 50% chance add a cold dish
+  1028|  1028|  const colds = recipes.filter(r => r.category === '凉菜');
+  1029|  1029|  if(colds.length > 0 && Math.random() > 0.4){
+  1030|  1030|    selectedIds.push(colds[Math.floor(Math.random() * colds.length)].id);
+  1031|  1031|  }
+  1032|  1032|  saveMenu();
+  1033|  1033|  renderMenu();
+  1034|  1034|  renderLibrary();
+  1035|  1035|  updateBadge();
+  1036|  1036|  showToast('✨ 已为你自动搭配菜单');
+  1037|  1037|}
+  1038|  1038|
+  1039|  1039|function renderMenu(){
+  1040|  1040|  const display = document.getElementById('menuDisplay');
+  1041|  1041|  const summary = document.getElementById('menuSummary');
+  1042|  1042|  if(selectedIds.length === 0){
+  1043|  1043|    display.innerHTML = `
+  1044|  1044|      <div class="menu-empty">
+  1045|  1045|        <span class="emoji">📝</span>
+  1046|  1046|        <p>今日菜单还是空的~</p>
+  1047|  1047|        <p style="font-size:.9em;margin-top:5px">点击"自动搭配"或去菜谱库手动添加</p>
+  1048|  1048|      </div>`;
+  1049|  1049|    summary.innerHTML = '';
+  1050|  1050|    return;
+  1051|  1051|  }
+  1052|  1052|
+  1053|  1053|  const selected = selectedIds.map(id => recipes.find(r => r.id === id)).filter(r => r);
+  1054|  1054|  const cats = ['荤菜','素菜','汤品','主食','凉菜'];
+  1055|  1055|  let html = `
+  1056|  1056|    <div class="menu-title">~ 今日菜单 ~</div>
+  1057|  1057|    <div class="menu-date">${new Date().toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric',weekday:'long'})}</div>
+  1058|  1058|  `;
+  1059|  1059|  cats.forEach(cat => {
+  1060|  1060|    const dishes = selected.filter(r => r.category === cat);
+  1061|  1061|    if(dishes.length === 0) return;
+  1062|  1062|    html += `<div class="menu-section">
+  1063|  1063|      <h4>${CAT_EMOJI[cat]||'🍽️'} ${cat}</h4>`;
+  1064|  1064|    dishes.forEach(r => {
+  1065|  1065|      const imgHtml = r.image
+  1066|  1066|        ? `<img class="mi-img" src="${r.image}" onerror="this.style.display='none';this.parentElement.querySelector('.mi-img-emoji').style.display='flex'"><span class="mi-img mi-img-emoji" style="display:none">${CAT_EMOJI[cat]||'🍽️'}</span>`
+  1067|  1067|        : `<span class="mi-img">${CAT_EMOJI[cat]||'🍽️'}</span>`;
+  1068|  1068|      html += `<div class="menu-item">
+  1069|  1069|        ${imgHtml}
+  1070|  1070|        <div class="mi-info">
+  1071|  1071|          <div class="mi-name">${escapeHtml(r.name)}</div>
+  1072|  1072|          ${r.ingredients ? `<div class="mi-ingredients">${escapeHtml(r.ingredients.join('、'))}</div>` : ''}
+  1073|  1073|        </div>
+  1074|  1074|        <button class="mi-remove" onclick="removeFromMenu(${r.id})">✕</button>
+  1075|  1075|      </div>`;
+  1076|  1076|    });
+  1077|  1077|    html += `</div>`;
+  1078|  1078|  });
+  1079|  1079|  display.innerHTML = html;
+  1080|  1080|
+  1081|  1081|  // Summary
+  1082|  1082|  const counts = {};
+  1083|  1083|  selected.forEach(r => {counts[r.category] = (counts[r.category]||0)+1});
+  1084|  1084|  summary.innerHTML = `
+  1085|  1085|    <div class="summary-card"><span class="num">${selected.length}</span><span class="label">总菜品</span></div>
+  1086|  1086|    ${cats.map(c => counts[c] ? `<div class="summary-card"><span class="num">${counts[c]}</span><span class="label">${c}</span></div>` : '').join('')}
+  1087|  1087|  `;
+  1088|  1088|}
+  1089|  1089|
+  1090|  1090|function updateBadge(){
+  1091|  1091|  const badge = document.getElementById('menuBadge');
+  1092|  1092|  if(selectedIds.length > 0){
+  1093|  1093|    badge.textContent = selectedIds.length;
+  1094|  1094|    badge.classList.remove('hidden');
+  1095|  1095|  }else{
+  1096|  1096|    badge.classList.add('hidden');
+  1097|  1097|  }
+  1098|  1098|}
+  1099|  1099|
+  1100|  1100|/* ===== Share ===== */
+  1101|  1101|function renderShare(){
+  1102|  1102|  const preview = document.getElementById('sharePreview');
+  1103|  1103|  if(selectedIds.length === 0){
+  1104|  1104|    preview.innerHTML = '<p style="color:var(--ink-light);text-align:center">还没有选择菜品，请先去"今日菜单"添加菜品~</p>';
+  1105|  1105|    return;
+  1106|  1106|  }
+  1107|  1107|  const selected = selectedIds.map(id => recipes.find(r => r.id === id)).filter(r => r);
+  1108|  1108|  preview.innerHTML = `
+  1109|  1109|    <h3>📋 将分享以下 ${selected.length} 道菜品：</h3>
+  1110|  1110|    <div class="share-preview-list">
+  1111|  1111|      ${selected.map(r => `<div class="share-preview-item">${CAT_EMOJI[r.category]||'🍽️'} ${escapeHtml(r.name)}</div>`).join('')}
+  1112|  1112|    </div>`;
+  1113|  1113|}
+  1114|  1114|
+  1115|  1115|function generateShareLink(){
+  1116|  1116|  if(selectedIds.length === 0){
+  1117|  1117|    showToast('请先在"今日菜单"中选择菜品~');
+  1118|  1118|    return;
+  1119|  1119|  }
+  1120|  1120|  const selected = selectedIds.map(id => recipes.find(r => r.id === id)).filter(r => r);
+  1121|  1121|  const data = selected.map(r => ({
+  1122|  1122|    name: r.name, category: r.category, difficulty: r.difficulty,
+  1123|  1123|    ingredients: r.ingredients, image: r.image, note: r.note
+  1124|  1124|  }));
+  1125|  1125|  const json = JSON.stringify(data);
+  1126|  1126|  const encoded = encodeBase64(json);
+  1127|  1127|  const baseUrl = window.location.href.split('#')[0];
+  1128|  1128|  const link = baseUrl + '#menu=' + encoded;
+  1129|  1129|  document.getElementById('shareLinkInput').value = link;
+  1130|  1130|  document.getElementById('copyBtn').style.display = '';
+  1131|  1131|  showToast('✅ 分享链接已生成');
+  1132|  1132|}
+  1133|  1133|
+  1134|  1134|function copyLink(){
+  1135|  1135|  const input = document.getElementById('shareLinkInput');
+  1136|  1136|  input.select();
+  1137|  1137|  input.setSelectionRange(0, 99999);
+  1138|  1138|  try{
+  1139|  1139|    document.execCommand('copy');
+  1140|  1140|    showToast('📋 链接已复制到剪贴板');
+  1141|  1141|  }catch(e){
+  1142|  1142|    showToast('请手动复制链接~');
+  1143|  1143|  }
+  1144|  1144|}
+  1145|  1145|
+  1146|  1146|/* ===== Share Link Encode/Decode (Unicode-safe) ===== */
+  1147|  1147|function encodeBase64(str){
+  1148|  1148|  const bytes = new TextEncoder().encode(str);
+  1149|  1149|  let bin = '';
+  1150|  1150|  bytes.forEach(b => bin += String.fromCharCode(b));
+  1151|  1151|  return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+  1152|  1152|}
+  1153|  1153|
+  1154|  1154|function decodeBase64(b64){
+  1155|  1155|  b64 = b64.replace(/-/g,'+').replace(/_/g,'/');
+  1156|  1156|  const bin = atob(b64);
+  1157|  1157|  const bytes = new Uint8Array(bin.length);
+  1158|  1158|  for(let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  1159|  1159|  return new TextDecoder().decode(bytes);
+  1160|  1160|}
+  1161|  1161|
+  1162|  1162|function checkShareLink(){
+  1163|  1163|  const hash = window.location.hash;
+  1164|  1164|  if(hash.startsWith('#menu=')){
+  1165|  1165|    try{
+  1166|  1166|      const encoded = hash.substring(6);
+  1167|  1167|      const json = decodeBase64(encoded);
+  1168|  1168|      return JSON.parse(json);
+  1169|  1169|    }catch(e){
+  1170|  1170|      console.error('解析分享链接失败:', e);
+  1171|  1171|      return null;
+  1172|  1172|    }
+  1173|  1173|  }
+  1174|  1174|  return null;
+  1175|  1175|}
+  1176|  1176|
+  1177|  1177|function showShared(dishes){
+  1178|  1178|  sharedDishes = dishes;
+  1179|  1179|  const view = document.getElementById('sharedView');
+  1180|  1180|  const content = document.getElementById('sharedContent');
+  1181|  1181|  const dateEl = document.getElementById('sharedDate');
+  1182|  1182|  const fromEl = document.getElementById('sharedFrom');
+  1183|  1183|
+  1184|  1184|  const d = new Date();
+  1185|  1185|  dateEl.textContent = '~ ' + d.toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric',weekday:'long'}) + ' ~';
+  1186|  1186|  fromEl.textContent = `好友分享了 ${dishes.length} 道菜品`;
+  1187|  1187|
+  1188|  1188|  const cats = ['荤菜','素菜','汤品','主食','凉菜'];
+  1189|  1189|  let html = '<div class="shared-menu-card">';
+  1190|  1190|  cats.forEach(cat => {
+  1191|  1191|    const dishesInCat = dishes.filter(r => r.category === cat);
+  1192|  1192|    if(dishesInCat.length === 0) return;
+  1193|  1193|    html += `<div class="menu-section">
+  1194|  1194|      <h4 style="font-size:1.2em;color:var(--accent);font-family:'Ma Shan Zheng',serif;border-bottom:2px dotted var(--line);padding-bottom:4px;margin-bottom:10px">${CAT_EMOJI[cat]||'🍽️'} ${cat}</h4>`;
+  1195|  1195|    dishesInCat.forEach(r => {
+  1196|  1196|      const imgHtml = r.image
+  1197|  1197|        ? `<img class="sd-img" src="${r.image}" loading="lazy" onerror="this.style.display='none';this.parentElement.querySelector('.sd-img-emoji').style.display='flex'"><div class="sd-img sd-img-emoji" style="display:none">${CAT_EMOJI[cat]||'🍽️'}</div>`
+  1198|  1198|        : `<div class="sd-img">${CAT_EMOJI[cat]||'🍽️'}</div>`;
+  1199|  1199|      const stars = '★'.repeat(r.difficulty==='简单'?1:r.difficulty==='中等'?2:3) + '☆'.repeat(r.difficulty==='简单'?2:r.difficulty==='中等'?1:0);
+  1200|  1200|      html += `<div class="shared-dish">
+  1201|  1201|        ${imgHtml}
+  1202|  1202|        <div class="sd-body">
+  1203|  1203|          <div class="sd-name">${escapeHtml(r.name)}</div>
+  1204|  1204|          <div class="sd-tags">
+  1205|  1205|            <span class="tag tag-cat">${CAT_EMOJI[r.category]||'🍽️'} ${r.category}</span>
+  1206|  1206|            <span class="tag tag-diff"><span class="stars">${stars}</span></span>
+  1207|  1207|          </div>
+  1208|  1208|          ${r.ingredients ? `<div style="font-size:.85em;color:var(--ink-light);margin-top:3px">🥘 ${escapeHtml(r.ingredients.join('、'))}</div>` : ''}
+  1209|  1209|          ${r.note ? `<span class="sd-note">💬 ${escapeHtml(r.note)}</span>` : ''}
+  1210|  1210|        </div>
+  1211|  1211|      </div>`;
+  1212|  1212|    });
+  1213|  1213|    html += `</div>`;
+  1214|  1214|  });
+  1215|  1215|  html += '</div>';
+  1216|  1216|  content.innerHTML = html;
+  1217|  1217|  view.classList.remove('hidden');
+  1218|  1218|  document.getElementById('app').style.display = 'none';
+  1219|  1219|}
+  1220|  1220|
+  1221|  1221|function closeShared(){
+  1222|  1222|  document.getElementById('sharedView').classList.add('hidden');
+  1223|  1223|  document.getElementById('app').style.display = '';
+  1224|  1224|  // Clear hash
+  1225|  1225|  history.replaceState(null, '', window.location.pathname + window.location.search);
+  1226|  1226|}
+  1227|  1227|
+  1228|  1228|function importShared(){
+  1229|  1229|  if(sharedDishes.length === 0) return;
+  1230|  1230|  let added = 0;
+  1231|  1231|  sharedDishes.forEach(d => {
+  1232|  1232|    // Check if already exists by name
+  1233|  1233|    if(!recipes.some(r => r.name === d.name)){
+  1234|  1234|      recipes.push({
+  1235|  1235|        id: Date.now() + added,
+  1236|  1236|        name: d.name, category: d.category, difficulty: d.difficulty,
+  1237|  1237|        ingredients: d.ingredients || [], image: d.image || '', note: d.note || ''
+  1238|  1238|      });
+  1239|  1239|      added++;
+  1240|  1240|    }
+  1241|  1241|  });
+  1242|  1242|  saveRecipes();
+  1243|  1243|  renderAll();
+  1244|  1244|  showToast(`✅ 已导入 ${added} 道菜品到菜谱库`);
+  1245|  1245|  closeShared();
+  1246|  1246|}
+  1247|  1247|
+  1248|  1248|/* ===== Utility ===== */
+  1249|  1249|function escapeHtml(str){
+  1250|  1250|  if(!str) return '';
+  1251|  1251|  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  1252|  1252|}
+  1253|  1253|
+  1254|  1254|function showToast(msg){
+  1255|  1255|  const toast = document.getElementById('toast');
+  1256|  1256|  toast.textContent = msg;
+  1257|  1257|  toast.classList.add('show');
+  1258|  1258|  clearTimeout(toast._timer);
+  1259|  1259|  toast._timer = setTimeout(()=>toast.classList.remove('show'), 2200);
+  1260|  1260|}
+  1261|  1261|
+  1262|  1262|function renderAll(){
+  1263|  1263|  renderLibrary();
+  1264|  1264|  renderMenu();
+  1265|  1265|  updateBadge();
+  1266|  1266|}
+  1267|  1267|
+  1268|  1268|// Close modal on overlay click
+  1269|  1269|document.getElementById('modalOverlay').addEventListener('click', function(e){
+  1270|  1270|  if(e.target === this) closeModal();
+  1271|  1271|});
+  1272|  1272|
+  1273|  1273|// Keyboard shortcuts
+  1274|  1274|document.addEventListener('keydown', function(e){
+  1275|  1275|  if(e.key === 'Escape'){
+  1276|  1276|    closeModal();
+  1277|  1277|  }
+  1278|  1278|});
+  1279|  1279|
+  1280|  1280|// Start
+  1281|  1281|init();
+  1282|  1282|</script>
+  1283|  1283|</body>
+  1284|  1284|</html>
+  1285|  1285|
